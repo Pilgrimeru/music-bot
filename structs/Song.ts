@@ -1,6 +1,7 @@
 import { AudioResource, createAudioResource, StreamType } from "@discordjs/voice";
 import youtube from "youtube-sr";
 import { getInfo } from "ytdl-core";
+import { getVideoID } from "ytdl-core";
 import ytdl from "ytdl-core-discord";
 import { i18n } from "../utils/i18n";
 import { videoPattern } from "../utils/patterns";
@@ -9,17 +10,21 @@ export interface SongData {
   url: string;
   title: string;
   duration: number;
+  id: string;
+
 }
 
 export class Song {
   public readonly url: string;
   public readonly title: string;
   public readonly duration: number;
+  public readonly id: string;
 
-  public constructor({ url, title, duration }: SongData) {
+  public constructor({ url, title, duration, id }: SongData) {
     this.url = url;
     this.title = title;
     this.duration = duration;
+    this.id = id;
   }
 
   public static async from(url: string = "", search: string = "") {
@@ -34,7 +39,8 @@ export class Song {
       return new this({
         url: songInfo.videoDetails.video_url,
         title: songInfo.videoDetails.title,
-        duration: parseInt(songInfo.videoDetails.lengthSeconds)
+        duration: parseInt(songInfo.videoDetails.lengthSeconds),
+        id: getVideoID(url)
       });
     } else {
       const result = await youtube.searchOne(search);
@@ -44,7 +50,8 @@ export class Song {
       return new this({
         url: songInfo.videoDetails.video_url,
         title: songInfo.videoDetails.title,
-        duration: parseInt(songInfo.videoDetails.lengthSeconds)
+        duration: parseInt(songInfo.videoDetails.lengthSeconds),
+        id: getVideoID(`https://youtube.com/watch?v=${result.id}`)
       });
     }
   }
