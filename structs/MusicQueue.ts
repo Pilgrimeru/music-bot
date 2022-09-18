@@ -11,7 +11,7 @@ import {
   VoiceConnectionState,
   VoiceConnectionStatus
 } from "@discordjs/voice";
-import { Message, TextChannel, User } from "discord.js";
+import { Interaction, Message, MessageActionRow, MessageButton, TextChannel, User } from "discord.js";
 import { promisify } from "node:util";
 import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
@@ -20,6 +20,7 @@ import { i18n } from "../utils/i18n";
 import { canModifyQueue } from "../utils/queue";
 import { Song } from "./Song";
 
+const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const wait = promisify(setTimeout);
 
 export class MusicQueue {
@@ -118,9 +119,11 @@ export class MusicQueue {
     !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).catch(console.error);
 
     this.waitTimeout = setTimeout(() => {
-      this.connection.destroy();
+      
       bot.queues.delete(this.message.guild!.id);
-
+      if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
+        this.connection.destroy();
+      }
       !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
     }, config.STAY_TIME * 1000);
   }
@@ -157,116 +160,69 @@ export class MusicQueue {
     const song = (newState.resource as AudioResource<Song>).metadata;
 
     let playingMessage: Message;
-
+    
     try {
-      playingMessage = await this.textChannel.send((newState.resource as AudioResource<Song>).metadata.startMessage());
-
-      await playingMessage.react("⏭");
-      await playingMessage.react("⏯");
-      await playingMessage.react("🔇");
-      await playingMessage.react("🔉");
-      await playingMessage.react("🔊");
-      await playingMessage.react("🔁");
-      await playingMessage.react("🔀");
-      await playingMessage.react("⏹");
+      const row = new MessageActionRow().addComponents(
+      
+      new MessageButton().setCustomId("stop").setEmoji('⏸').setStyle('SECONDARY'),
+  
+      new MessageButton().setCustomId("pause").setEmoji('⏹').setStyle('SECONDARY'),
+    
+      new MessageButton().setCustomId("skip").setEmoji('⏭').setStyle('SECONDARY'),
+      
+      );
+      
+      const time = new Date(song.duration * 1000).toISOString().substr(11, 8);
+      
+      playingMessage = await this.textChannel.send({
+        embeds: [
+          {
+              description: `:arrow_forward: **Lecture en cour** ♪\n [${song.title}](${song.url}) - \`${time}\``,
+              thumbnail: {
+                  url: `https://i.ytimg.com/vi/${song.id}/hqdefault.jpg` 
+              },
+              color: 0x44b868
+          }
+      ],
+        components: [row] });
+    
     } catch (error: any) {
       console.error(error);
       this.textChannel.send(error.message);
       return;
     }
-
-    const filter = (reaction: any, user: User) => user.id !== this.textChannel.client.user!.id;
-
-    const collector = playingMessage.createReactionCollector({
-      filter,
-      time: song.duration > 0 ? song.duration * 1000 : 600000
+    const collector = playingMessage.createMessageComponentCollector({
+      time : song.duration > 0 ? song.duration * 1000 : 600000
     });
 
-    collector.on("collect", async (reaction, user) => {
-      if (!this.songs) return;
-
-      const member = await playingMessage.guild!.members.fetch(user);
-
-      switch (reaction.emoji.name) {
-        case "⏭":
-          reaction.users.remove(user).catch(console.error);
-          await this.bot.commands.get("skip")!.execute(this.message);
-          break;
-
-        case "⏯":
-          reaction.users.remove(user).catch(console.error);
-          if (this.player.state.status == AudioPlayerStatus.Playing) {
-            await this.bot.commands.get("pause")!.execute(this.message);
-          } else {
-            await this.bot.commands.get("resume")!.execute(this.message);
-          }
-          break;
-
-        case "🔇":
-          reaction.users.remove(user).catch(console.error);
-          if (!canModifyQueue(member)) return i18n.__("common.errorNotChannel");
-          this.muted = !this.muted;
-          if (this.muted) {
-            this.resource.volume?.setVolumeLogarithmic(0);
-            this.textChannel.send(i18n.__mf("play.mutedSong", { author: user })).catch(console.error);
-          } else {
-            this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
-            this.textChannel.send(i18n.__mf("play.unmutedSong", { author: user })).catch(console.error);
-          }
-          break;
-
-        case "🔉":
-          reaction.users.remove(user).catch(console.error);
-          if (this.volume == 0) return;
-          if (!canModifyQueue(member)) return i18n.__("common.errorNotChannel");
-          this.volume = Math.max(this.volume - 10, 0);
-          this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
-          this.textChannel
-            .send(i18n.__mf("play.decreasedVolume", { author: user, volume: this.volume }))
-            .catch(console.error);
-          break;
-
-        case "🔊":
-          reaction.users.remove(user).catch(console.error);
-          if (this.volume == 100) return;
-          if (!canModifyQueue(member)) return i18n.__("common.errorNotChannel");
-          this.volume = Math.min(this.volume + 10, 100);
-          this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
-          this.textChannel
-            .send(i18n.__mf("play.increasedVolume", { author: user, volume: this.volume }))
-            .catch(console.error);
-          break;
-
-        case "🔁":
-          reaction.users.remove(user).catch(console.error);
-          await this.bot.commands.get("loop")!.execute(this.message);
-          break;
-
-        case "🔀":
-          reaction.users.remove(user).catch(console.error);
-          await this.bot.commands.get("shuffle")!.execute(this.message);
-          break;
-
-        case "⏹":
-          reaction.users.remove(user).catch(console.error);
-          await this.bot.commands.get("stop")!.execute(this.message);
-          collector.stop();
-          break;
-
-        default:
-          reaction.users.remove(user).catch(console.error);
-          break;
+    collector.on('collect', async (b) => {
+      if(b.customId === "stop") {
+        await this.bot.commands.get("stop")!.execute(this.message);
+        await b.deferUpdate();
+        collector.stop();
+      }
+      if(b.customId === "skip") {
+        await this.bot.commands.get("skip")!.execute(this.message);
+        await b.deferUpdate();
+        collector.stop();
+      }
+      if(b.customId === "pause") {
+         if (this.player.state.status == AudioPlayerStatus.Playing) {
+          await this.bot.commands.get("pause")!.execute(this.message);
+        } else {
+          await this.bot.commands.get("resume")!.execute(this.message);
+        }
+        await b.deferUpdate();
       }
     });
-
     collector.on("end", () => {
-      playingMessage.reactions.removeAll().catch(console.error);
-
       if (config.PRUNING) {
         setTimeout(() => {
           playingMessage.delete().catch();
-        }, 3000);
+        }, 5);
       }
     });
-  }
+
+  } 
 }
+
