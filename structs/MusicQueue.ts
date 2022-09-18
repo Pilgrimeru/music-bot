@@ -164,9 +164,9 @@ export class MusicQueue {
     try {
       const row = new MessageActionRow().addComponents(
       
-      new MessageButton().setCustomId("stop").setEmoji('⏸').setStyle('SECONDARY'),
+      new MessageButton().setCustomId("stop").setEmoji('⏹').setStyle('SECONDARY'),
   
-      new MessageButton().setCustomId("pause").setEmoji('⏹').setStyle('SECONDARY'),
+      new MessageButton().setCustomId("pause").setEmoji('⏸').setStyle('SECONDARY'),
     
       new MessageButton().setCustomId("skip").setEmoji('⏭').setStyle('SECONDARY'),
       
@@ -177,7 +177,7 @@ export class MusicQueue {
       playingMessage = await this.textChannel.send({
         embeds: [
           {
-              description: `:arrow_forward: **Lecture en cour** ♪\n [${song.title}](${song.url}) - \`${time}\``,
+              description: `:arrow_forward: **Lecture en cours** ♪\n [${song.title}](${song.url}) - \`${time}\``,
               thumbnail: {
                   url: `https://i.ytimg.com/vi/${song.id}/hqdefault.jpg` 
               },
