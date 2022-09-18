@@ -1,4 +1,4 @@
-import { Message, MessageEmbed, MessageReaction, User } from "discord.js";
+import { Interaction, Message, MessageEmbed, MessageActionRow, MessageButton, User } from "discord.js";
 import { bot } from "../index";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
@@ -16,52 +16,58 @@ export default {
     let currentPage = 0;
     const embeds = generateQueueEmbed(message, queue.songs);
 
-    const queueEmbed = await message.reply({
-      content: `**${i18n.__mf("queue.currentPage")} ${currentPage + 1}/${embeds.length}**`,
-      embeds: [embeds[currentPage]]
-    });
+    let queueEmbed: Message;
 
     try {
-      await queueEmbed.react("⬅️");
-      await queueEmbed.react("⏹");
-      await queueEmbed.react("➡️");
+      const row = new MessageActionRow().addComponents(
+      
+        new MessageButton().setCustomId("gauche").setEmoji('⬅️').setStyle('SECONDARY'),
+    
+        new MessageButton().setCustomId("droite").setEmoji('➡️').setStyle('SECONDARY'),
+        
+        );
+
+        queueEmbed = await message.reply({
+          content: `**${i18n.__mf("queue.currentPage")} ${currentPage + 1}/${embeds.length}**`,
+          embeds: [embeds[currentPage]],
+          components: [row]
+        });
+
+        
     } catch (error: any) {
       console.error(error);
       message.reply(error.message).catch(console.error);
+      return;
     }
 
-    const filter = (reaction: MessageReaction, user: User) =>
-      ["⬅️", "⏹", "➡️"].includes(reaction.emoji.name!) && message.author.id === user.id;
+    const collector = queueEmbed.createMessageComponentCollector({time: 60000});
 
-    const collector = queueEmbed.createReactionCollector({ filter, time: 60000 });
-
-    collector.on("collect", async (reaction, user) => {
-      try {
-        if (reaction.emoji.name === "➡️") {
-          if (currentPage < embeds.length - 1) {
-            currentPage++;
-            queueEmbed.edit({
-              content: i18n.__mf("queue.currentPage", { page: currentPage + 1, length: embeds.length }),
-              embeds: [embeds[currentPage]]
-            });
-          }
-        } else if (reaction.emoji.name === "⬅️") {
-          if (currentPage !== 0) {
-            --currentPage;
-            queueEmbed.edit({
-              content: i18n.__mf("queue.currentPage", { page: currentPage + 1, length: embeds.length }),
-              embeds: [embeds[currentPage]]
-            });
-          }
-        } else {
-          collector.stop();
-          reaction.message.reactions.removeAll();
+    collector.on('collect', async (q) => {
+      if(q.customId === "gauche") {
+        if (currentPage !== 0) {
+          --currentPage;
+          queueEmbed.edit({
+            content: `**${i18n.__mf("queue.currentPage")} ${currentPage + 1}/${embeds.length}**`,
+            embeds: [embeds[currentPage]]
+          });
         }
-        await reaction.users.remove(message.author.id);
-      } catch (error: any) {
-        console.error(error);
-        return message.reply(error.message).catch(console.error);
+        await q.deferUpdate();
       }
+      if(q.customId === "droite") {
+        if (currentPage < embeds.length - 1) {
+          currentPage++;
+          queueEmbed.edit({
+            content: `**${i18n.__mf("queue.currentPage")} ${currentPage + 1}/${embeds.length}**`,
+            embeds: [embeds[currentPage]]
+          });
+        }
+        await q.deferUpdate();
+      }
+    });
+    collector.on("end", () => {
+      setTimeout(() => {
+        queueEmbed.delete().catch();
+      }, 5);
     });
   }
 };
