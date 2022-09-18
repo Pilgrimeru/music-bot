@@ -14,7 +14,7 @@ export default {
     if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
 
     if (queue.player.pause()) {
-      queue.textChannel.send(i18n.__mf("pause.result", { author: message.author })).catch(console.error);
+      queue.textChannel.send(i18n.__mf("pause.result", { author: message.author })).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
 
       return true;
     }

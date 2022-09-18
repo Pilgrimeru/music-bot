@@ -52,6 +52,7 @@ export default {
 
       return message
         .reply(i18n.__mf("play.queueAdded", { title: song.title, author: message.author }))
+        .then(msg => setTimeout(() => msg.delete(), 10000))
         .catch(console.error);
     }
 

@@ -33,7 +33,6 @@ export default {
       playlist = await Playlist.from(args[0], args.join(" "));
     } catch (error) {
       console.error(error);
-
       return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).catch(console.error);
     }
 
@@ -55,7 +54,7 @@ export default {
       newQueue.enqueue(playlist.videos[0]);
     }
 
-    let playlistEmbed = new MessageEmbed()
+    /*let playlistEmbed = new MessageEmbed()
       .setTitle(`${playlist.data.title}`)
       .setDescription(
         playlist.videos.map((song: Song, index: number) => `${index + 1}. ${song.title}`).join("\n")
@@ -66,13 +65,14 @@ export default {
 
     if (playlistEmbed.description!.length >= 2048)
       playlistEmbed.description =
-        playlistEmbed.description!.substr(0, 2007) + i18n.__("playlist.playlistCharLimit");
+        playlistEmbed.description!.substr(0, 2007) + i18n.__("playlist.playlistCharLimit");*/
 
     message
       .reply({
         content: i18n.__mf("playlist.startedPlaylist", { author: message.author }),
-        embeds: [playlistEmbed]
+        //embeds: [playlistEmbed]
       })
+      .then(msg => setTimeout(() => msg.delete(), 10000))
       .catch(console.error);
   }
 };
