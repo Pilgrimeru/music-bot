@@ -11,16 +11,14 @@ import {
   VoiceConnectionState,
   VoiceConnectionStatus
 } from "@discordjs/voice";
-import { Interaction, Message, MessageActionRow, MessageButton, TextChannel, User } from "discord.js";
+import { Message, MessageActionRow, MessageButton, TextChannel } from "discord.js";
 import { promisify } from "node:util";
 import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
-import { canModifyQueue } from "../utils/queue";
 import { Song } from "./Song";
 
-const { ActionRowBuilder, ButtonBuilder, ButtonStyle } = require('discord.js');
 const wait = promisify(setTimeout);
 
 export class MusicQueue {
