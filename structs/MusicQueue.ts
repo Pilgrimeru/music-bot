@@ -175,7 +175,7 @@ export class MusicQueue {
       playingMessage = await this.textChannel.send({
         embeds: [
           {
-              description: `:arrow_forward: **Lecture en cours** ♪\n [${song.title}](${song.url}) - \`${time}\``,
+              description: `${i18n.__mf("play.startedPlaying")}\n\n[${song.title}](${song.url})\n${i18n.__mf("play.duration")}\`${time}\``,
               thumbnail: {
                   url: `https://i.ytimg.com/vi/${song.id}/hqdefault.jpg` 
               },
@@ -210,6 +210,7 @@ export class MusicQueue {
         } else {
           await this.bot.commands.get("resume")!.execute(this.message);
         }
+        console.log(b.member)
         await b.deferUpdate();
       }
     });
