@@ -1,5 +1,4 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice";
-import { i18n } from "../utils/i18n";
 import youtube from "youtube-sr";
 import { extractID, sp_validate, yt_validate } from "play-dl";
 const play = require('play-dl');
@@ -28,7 +27,7 @@ export class Song {
   public static async from(url: string = "", search: string = "") {
 
     let songInfo;
-    if(url.startsWith('https') && sp_validate(url) === 'track') {
+    if (url.startsWith('https') && sp_validate(url) === 'track') {
       let sp_data = await play.spotify(url)
       let result = await play.search(`${sp_data.name}`, {limit: 1})
       songInfo = await play.video_info(result[0].url);
@@ -42,19 +41,18 @@ export class Song {
     } else if (url.startsWith('https') && yt_validate(url) === 'video') {
 
       songInfo = await play.video_info(url);
-
+      
       return new this({
         url: url,
         title: songInfo.video_details.title,
         duration: songInfo.video_details.durationInSec,
         id: extractID(url)
       });
+
     } else {
+
       const result = await youtube.searchOne(search);
-
-
       url = `https://youtube.com/watch?v=${result.id}`;
-
       songInfo = await play.video_info(url);
 
       return new this({
@@ -83,8 +81,4 @@ export class Song {
     if (!source) return;
     
   }
-
-  /*public startMessage() {
-    return i18n.__mf("play.startedPlaying", { title: this.title, url: this.url });
-  }*/
 }
