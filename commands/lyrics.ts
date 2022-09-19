@@ -32,6 +32,6 @@ export default {
     if (lyricsEmbed.description!.length >= 2048)
       lyricsEmbed.description = `${lyricsEmbed.description!.substr(0, 2045)}...`;
 
-    return message.reply({ embeds: [lyricsEmbed] }).catch(console.error);
+    return message.reply({ embeds: [lyricsEmbed] }).then(msg => setTimeout(() => msg.delete(), 420000)).catch(console.error);
   }
 };

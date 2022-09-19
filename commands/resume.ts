@@ -15,7 +15,7 @@ export default {
 
     if (queue.player.unpause()) {
       queue.textChannel
-        .send(i18n.__mf("resume.resultNotPlaying", { author: message.author }))
+        .send(i18n.__mf("resume.resultNotPlaying"))
         .then(msg => setTimeout(() => msg.delete(), 10000))
         .catch(console.error);
 

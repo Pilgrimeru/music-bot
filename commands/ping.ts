@@ -8,6 +8,7 @@ export default {
   execute(message: Message) {
     message
       .reply(i18n.__mf("ping.result", { ping: Math.round(message.client.ws.ping) }))
+      .then(msg => setTimeout(() => msg.delete(), 30000))
       .catch(console.error);
   }
 };

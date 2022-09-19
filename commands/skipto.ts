@@ -35,7 +35,7 @@ export default {
     queue.player.stop();
 
     queue.textChannel
-      .send(i18n.__mf("skipto.result", { author: message.author, arg: args[0] - 1 }))
+      .send(i18n.__mf("skipto.result", { arg: args[0] - 1 }))
       .then(msg => setTimeout(() => msg.delete(), 10000))
       .catch(console.error);
   }

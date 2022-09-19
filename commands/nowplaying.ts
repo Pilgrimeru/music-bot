@@ -40,6 +40,6 @@ export default {
       });
     }
 
-    return message.reply({ embeds: [nowPlaying] });
+    return message.reply({ embeds: [nowPlaying] }).then(msg => setTimeout(() => msg.delete(), 10000));
   }
 };

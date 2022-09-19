@@ -22,6 +22,6 @@ export default {
 
     queue.songs = songs;
 
-    queue.textChannel.send(i18n.__mf("shuffle.result", { author: message.author })).catch(console.error);
+    queue.textChannel.send(i18n.__mf("shuffle.result")).catch(console.error);
   }
 };

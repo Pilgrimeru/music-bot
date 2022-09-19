@@ -33,15 +33,13 @@ export default {
 
       queue.textChannel.send(
         i18n.__mf("remove.result", {
-          title: removed.map((song) => song.title).join("\n"),
-          author: message.author.id
+          title: removed.map((song) => song.title).join("\n")
         })
       );
     } else if (!isNaN(args[0]) && args[0] >= 1 && args[0] <= queue.songs.length) {
       return queue.textChannel.send(
         i18n.__mf("remove.result", {
-          title: queue.songs.splice(args[0] - 1, 1)[0].title,
-          author: message.author.id
+          title: queue.songs.splice(args[0] - 1, 1)[0].title
         })
       );
     } else {

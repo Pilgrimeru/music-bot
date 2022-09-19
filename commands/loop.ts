@@ -17,6 +17,7 @@ export default {
 
     return message
       .reply(i18n.__mf("loop.result", { loop: queue.loop ? i18n.__("common.on") : i18n.__("common.off") }))
+      .then(msg => setTimeout(() => msg.delete(), 10000))
       .catch(console.error);
   }
 };

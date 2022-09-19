@@ -69,7 +69,7 @@ export default {
 
     message
       .reply({
-        content: i18n.__mf("playlist.startedPlaylist", { author: message.author }),
+        content: i18n.__mf("playlist.startedPlaylist"),
         //embeds: [playlistEmbed]
       })
       .then(msg => setTimeout(() => msg.delete(), 10000))

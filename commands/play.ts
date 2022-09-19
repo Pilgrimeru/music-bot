@@ -11,7 +11,7 @@ export default {
   cooldown: 3,
   aliases: ["p"],
   description: i18n.__("play.description"),
-  permissions: ["CONNECT", "SPEAK", "ADD_REACTIONS", "MANAGE_MESSAGES"],
+  permissions: ["CONNECT", "SPEAK"],
   async execute(message: Message, args: string[]) {
     const { channel } = message.member!.voice;
 
@@ -28,7 +28,7 @@ export default {
 
     const url = args[0];
 
-    const loadingReply = await message.reply("⏳ Loading...");
+    const loadingReply = await message.reply(i18n.__mf("common.loading"));
 
     // Start the playlist if playlist url was provided
     if (playlistPattern.test(args[0])) {
@@ -49,9 +49,9 @@ export default {
 
     if (queue) {
       queue.enqueue(song);
-
+      
       return message
-        .reply(i18n.__mf("play.queueAdded", { title: song.title, author: message.author }))
+        .reply(i18n.__mf("play.queueAdded", { title: song.title}))
         .then(msg => setTimeout(() => msg.delete(), 10000))
         .catch(console.error);
     }
@@ -64,7 +64,7 @@ export default {
         adapterCreator: channel.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator
       })
     });
-
+    
     bot.queues.set(message.guild!.id, newQueue);
 
     newQueue.enqueue(song);

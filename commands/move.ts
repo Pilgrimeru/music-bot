@@ -26,10 +26,9 @@ export default {
 
     queue.textChannel.send(
       i18n.__mf("move.result", {
-        author: message.author,
         title: song.title,
         index: args[1] == 1 ? 1 : args[1]
       })
-    );
+    ).then(msg => setTimeout(() => msg.delete(), 10000));
   }
 };

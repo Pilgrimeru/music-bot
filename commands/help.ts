@@ -24,6 +24,6 @@ export default {
 
     helpEmbed.setTimestamp();
 
-    return message.reply({ embeds: [helpEmbed] }).catch(console.error);
+    return message.reply({ embeds: [helpEmbed] }).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
   }
 };
