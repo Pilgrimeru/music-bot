@@ -76,7 +76,7 @@
     "errorNotFoundPlaylist": "Playlist introuvable :(",
     "fetchingPlaylist": "⌛ récupère la playlist...",
     "playlistCharLimit": "\nListe de lecture supérieure à la limite de caractères...",
-    "startedPlaylist": "Une playlist a commencé.",
+    "startedPlaylist": "Une playlist a été ajoutée à la file d'attente.",
     "cantJoinChannel": "Impossible de rejoindre le salon: {error}"
   },
   "pruning": {
