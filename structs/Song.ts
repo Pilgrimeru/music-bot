@@ -72,9 +72,8 @@ export class Song {
     let source
     if (this.url.startsWith('https') && yt_validate(this.url) === 'video') {
       try {
-      let info = await play.video_info(this.url).catch(console.error);
-      const source = await play.stream_from_info(info).catch(console.error);
-      return createAudioResource(source.stream, { metadata: this, inputType : source.type, inlineVolume: true });
+      let stream = await play.stream(this.url)
+      return createAudioResource(stream.stream, { metadata: this, inputType : stream.type, inlineVolume: true });
       }catch (error) {
         console.error(error);
         return;
