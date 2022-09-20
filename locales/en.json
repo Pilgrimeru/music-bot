@@ -76,7 +76,7 @@
     "errorNotFoundPlaylist": "Playlist not found :(",
     "fetchingPlaylist": "⌛ fetching the playlist...",
     "playlistCharLimit": "\nPlaylist larger than character limit...",
-    "startedPlaylist": "A playlist has started.",
+    "startedPlaylist": "A playlist has been added to the queue.",
     "cantJoinChannel": "Could not join the channel: {error}"
   },
   "pruning": {
