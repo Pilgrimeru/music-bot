@@ -30,7 +30,14 @@ export default {
       const results = await youtube.search(search, { limit: 10, type: "video" });
 
       results.map((video, index) =>
-        resultsEmbed.addField(`https://youtube.com/watch?v=${video.id}`, `${index + 1}. ${video.title}`)
+      
+        resultsEmbed.addFields(
+          { 
+            name: `https://youtube.com/watch?v=${video.id}`,
+            value: `${index + 1}. ${video.title}`,
+            inline: true 
+          }
+        )
       );
 
       let resultsMessage = await message.channel.send({ embeds: [resultsEmbed] });

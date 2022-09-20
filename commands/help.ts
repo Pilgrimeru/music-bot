@@ -15,10 +15,12 @@ export default {
       .setColor("#F8AA2A");
 
     commands.forEach((cmd) => {
-      helpEmbed.addField(
-        `**${bot.prefix}${cmd.name} ${cmd.aliases ? `(${cmd.aliases})` : ""}**`,
-        `${cmd.description}`,
-        true
+      helpEmbed.addFields(
+        { 
+          name: `**${bot.prefix}${cmd.name} ${cmd.aliases ? `(${cmd.aliases})` : ""}**`,
+          value: `${cmd.description}`,
+          inline: true 
+        }
       );
     });
 
