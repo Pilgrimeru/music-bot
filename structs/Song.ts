@@ -3,6 +3,7 @@ import youtube from "youtube-sr";
 import { extractID, yt_validate } from "play-dl";
 const play = require('play-dl');
 
+
 export interface SongData {
   url: string;
   title: string;
@@ -70,11 +71,15 @@ export class Song {
     
     let source
     if (this.url.startsWith('https') && yt_validate(this.url) === 'video') {
+      try {
       let info = await play.video_info(this.url).catch(console.error);
-      const source = await play.stream_from_info(info)
+      const source = await play.stream_from_info(info).catch(console.error);
       return createAudioResource(source.stream, { metadata: this, inputType : source.type, inlineVolume: true });
+      }catch (error) {
+        console.error(error);
+        return;
+      }
     }
-    
     if (!source) return;
   }
 }
