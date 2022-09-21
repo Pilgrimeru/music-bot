@@ -4,31 +4,8 @@ import { config } from "./config";
 
 i18n.configure({
   locales: [
-    "ar",
-    "cs",
-    "de",
-    "el",
     "en",
-    "es",
-    "fa",
-    "fr",
-    "id",
-    "it",
-    "ja",
-    "ko",
-    "mi",
-    "nl",
-    "pl",
-    "pt_br",
-    "ru",
-    "sv",
-    "th",
-    "tr",
-    "uk",
-    "vi",
-    "zh_cn",
-    "zh_sg",
-    "zh_tw"
+    "fr"
   ],
   directory: join(__dirname, "..", "locales"),
   defaultLocale: "en",
@@ -44,7 +21,7 @@ i18n.configure({
     console.log(msg);
   },
 
-  missingKeyFn: function (locale, value) {
+  missingKeyFn: function (value) {
     return value;
   },
 
