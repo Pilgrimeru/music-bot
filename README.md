@@ -18,7 +18,7 @@
 
 ```sh
 git clone https://github.com/Pilgrimeru/music-bot.git
-cd evobot
+cd music-bot
 npm install
 ```
 
