@@ -115,6 +115,7 @@ export class MusicQueue {
     this.player.stop();
 
     !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).catch(console.error);
+    config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
 
     this.waitTimeout = setTimeout(() => {
       
