@@ -2,11 +2,11 @@
 ![Docker build](https://github.com/eritislami/evobot/actions/workflows/docker.yml/badge.svg)
 [![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
 
-![logo](https://repository-images.githubusercontent.com/186841818/8aa95700-7730-11e9-84be-e80f28520325)
+![logo](https://cdn.discordapp.com/attachments/643921269590458386/1022215395404435527/8aa95700-7730-11e9-84be-e80f28520325.jpg)
 
-# 🤖 EvoBot (Discord Music Bot)
+# 🤖 Discord Music Bot
 
-> EvoBot is a Discord Music Bot built with TypeScript, discord.js & uses Command Handler from [discordjs.guide](https://discordjs.guide)
+> Discord Music Bot built with TypeScript, discord.js & uses Command Handler from [discordjs.guide](https://discordjs.guide)
 
 ## Requirements
 
@@ -17,7 +17,7 @@
 ## 🚀 Getting Started
 
 ```sh
-git clone https://github.com/eritislami/evobot.git
+git clone https://github.com/Pilgrimeru/music-bot.git
 cd evobot
 npm install
 ```
@@ -42,13 +42,12 @@ Copy or Rename `config.json.example` to `config.json` and fill out the values:
 }
 ```
 
-## 🐬 Docker Configuration
+## 🌎 Locales
 
-For those who would prefer to use our [Docker container](https://hub.docker.com/repository/docker/eritislami/evobot), you may provide values from `config.json` as environment variables.
+Currently available locales are:
 
-```shell
-docker run -e "TOKEN=<discord-token>" eritislami/evobot
-```
+- English (en)
+- French (fr)
 
 ## 📝 Features & Commands
 
@@ -61,10 +60,6 @@ docker run -e "TOKEN=<discord-token>" eritislami/evobot
 - 🔎 Play music from YouTube via search query
 
 `!play under the bridge red hot chili peppers`
-
-- 🎶 Play music from Soundcloud via url
-
-`!play https://soundcloud.com/blackhorsebrigade/pearl-jam-alive`
 
 - 🔎 Search and select music to play
 
@@ -83,7 +78,7 @@ Examples: `1` or `1,2,3`
 `!playlist linkin park meteora`
 
 - Now Playing (!np)
-- Queue system (!queue, !q)
+- Queue (!queue, !q)
 - Loop / Repeat (!loop)
 - Shuffle (!shuffle)
 - Volume control (!volume, !v)
@@ -94,33 +89,11 @@ Examples: `1` or `1,2,3`
 - Skip to song # in queue (!skipto, !st)
 - Move a song in the queue (!move, !mv)
 - Remove song # from queue (!remove, !rm)
-- Play an mp3 clip (!clip song.mp3) (put the file in sounds folder)
-- List all clips (!clips)
 - Show ping to Discord API (!ping)
 - Show bot uptime (!uptime)
 - Toggle pruning of bot messages (!pruning)
 - Help (!help, !h)
 - Command Handler from [discordjs.guide](https://discordjs.guide/)
-- Media Controls via Reactions
+- Media Controls via buttons
 
-![reactions](https://i.imgur.com/9S7Omf9.png)
-
-## 🌎 Locales
-
-Currently available locales are:
-
-- English (en)
-- French (fr)
-
-- Check [Contributing](#-contributing) if you wish to help add more languages!
-- For languages please use [ISO 639-1](https://en.wikipedia.org/wiki/List_of_ISO_639-1_codes) two letter format
-
-## 🤝 Contributing
-
-1. [Fork the repository](https://github.com/eritislami/evobot/fork)
-2. Clone your fork: `git clone https://github.com/your-username/evobot.git`
-3. Create your feature branch: `git checkout -b my-new-feature`
-4. Stage changes `git add .`
-5. Commit your changes: `cz` OR `npm run commit` do not use `git commit`
-6. Push to the branch: `git push origin my-new-feature`
-7. Submit a pull request
+![buttons](https://cdn.discordapp.com/attachments/643921269590458386/1022217161655210126/unknown.png)
