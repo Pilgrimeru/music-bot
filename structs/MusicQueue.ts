@@ -114,9 +114,6 @@ export class MusicQueue {
     this.songs = [];
     this.player.stop();
 
-    !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).catch(console.error);
-    config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
-
     this.waitTimeout = setTimeout(() => {
       
       bot.queues.delete(this.message.guild!.id);
@@ -133,6 +130,8 @@ export class MusicQueue {
     }
 
     if (!this.songs.length) {
+      !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).catch(console.error);
+      config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
       return this.stop();
     }
 
