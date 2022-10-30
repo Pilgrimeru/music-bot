@@ -1,5 +1,6 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice";
 import youtube from "youtube-sr";
+import { getInfo } from "ytdl-core";
 import { extractID, yt_validate } from "play-dl";
 const play = require('play-dl');
 
@@ -43,12 +44,12 @@ export class Song {
     } else*/
     if (url.startsWith('https') && yt_validate(url) === 'video') {
 
-      songInfo = await play.video_info(url);
+      songInfo = await getInfo(url);
       
       return new this({
         url: url,
-        title: songInfo.video_details.title,
-        duration: songInfo.video_details.durationInSec,
+        title: songInfo.videoDetails.title,
+        duration: parseInt(songInfo.videoDetails.lengthSeconds),
         id: extractID(url)
       });
 
@@ -56,12 +57,12 @@ export class Song {
 
       const result = await youtube.searchOne(search);
       url = `https://youtube.com/watch?v=${result.id}`;
-      songInfo = await play.video_info(url);
+      songInfo = await await getInfo(url);
 
       return new this({
         url: url,
-        title: songInfo.video_details.title,
-        duration: songInfo.video_details.durationInSec,
+        title: songInfo.videoDetails.title,
+        duration: parseInt(songInfo.videoDetails.lengthSeconds),
         id: extractID(url)
       });
     }
