@@ -35,7 +35,7 @@ export class MusicQueue {
   public muted = false;
   public waitTimeout: NodeJS.Timeout;
   private queueLock = false;
-  private readyLock = false;
+  /*private readyLock = false;*/
 
   public constructor(options: QueueOptions) {
     Object.assign(this, options);
@@ -48,7 +48,9 @@ export class MusicQueue {
       if (newState.status === VoiceConnectionStatus.Disconnected) {
         if (newState.reason === VoiceConnectionDisconnectReason.WebSocketClose && newState.closeCode === 4014) {
           try {
-            this.stop();
+            this.loop = false;
+            this.songs = [];
+            this.player.stop();
           } catch (e) {
             console.log(e);
             this.stop();
@@ -56,10 +58,10 @@ export class MusicQueue {
         } else if (this.connection.rejoinAttempts < 5) {
           await wait((this.connection.rejoinAttempts + 1) * 5_000);
           this.connection.rejoin();
-        } else {
+        }/* else {
           this.connection.destroy();
-        }
-      } else if (
+        }*/
+      }/* else if (
         !this.readyLock &&
         (newState.status === VoiceConnectionStatus.Connecting || newState.status === VoiceConnectionStatus.Signalling)
       ) {
@@ -75,7 +77,7 @@ export class MusicQueue {
         } finally {
           this.readyLock = false;
         }
-      }
+      }*/
     });
 
     this.player.on("stateChange" as any, async (oldState: AudioPlayerState, newState: AudioPlayerState) => {
@@ -112,15 +114,16 @@ export class MusicQueue {
   public stop() {
     this.loop = false;
     this.songs = [];
+    bot.queues.delete(this.message.guild!.id);
     this.player.stop();
-
     this.waitTimeout = setTimeout(() => {
-      
-      bot.queues.delete(this.message.guild!.id);
       if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
-        this.connection.destroy();
+        const queue = bot.queues.get(this.message.guild!.id);
+        if (!queue) {
+          !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
+          this.connection.destroy();
+        }
       }
-      !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
     }, config.STAY_TIME * 1000);
   }
 
@@ -210,7 +213,6 @@ export class MusicQueue {
         } else {
           await this.bot.commands.get("resume")!.execute(this.message);
         }
-        console.log(b.member)
         await b.deferUpdate();
       }
     });
