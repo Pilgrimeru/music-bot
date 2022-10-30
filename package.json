@@ -28,8 +28,9 @@
     "lyrics-finder": "^21.0.5",
     "play-dl": "^1.9.5",
     "string-progressbar": "^1.0.4",
+    "ts-node": "^10.9.1",
     "youtube-sr": "~4.3.0",
-    "ts-node": "^10.9.1"
+    "ytdl-core": "^4.11.2"
   },
   "devDependencies": {
     "@types/i18n": "^0.13.2",
