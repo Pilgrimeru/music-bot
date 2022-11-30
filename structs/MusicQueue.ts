@@ -122,6 +122,7 @@ export class MusicQueue {
         if (!queue) {
           !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
           this.connection.destroy();
+          bot.queues.delete(this.message.guild!.id);
         }
       }
     }, config.STAY_TIME * 1000);
