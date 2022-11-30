@@ -119,9 +119,9 @@ export class MusicQueue {
       if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
         const queue = bot.queues.get(this.message.guild!.id);
         if (!queue) {
-          !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
           this.connection.destroy();
           bot.queues.delete(this.message.guild!.id);
+          !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
         }
       }
     }, config.STAY_TIME * 1000);
