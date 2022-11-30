@@ -115,6 +115,7 @@ export class MusicQueue {
     this.loop = false;
     this.songs = [];
     this.player.stop();
+    bot.queues.delete(this.message.guild!.id);
     this.waitTimeout = setTimeout(() => {
       if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
         const queue = bot.queues.get(this.message.guild!.id);
