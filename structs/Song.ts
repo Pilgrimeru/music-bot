@@ -1,22 +1,19 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice";
 import youtube from "youtube-sr";
-import { getInfo } from "ytdl-core";
-import { extractID, yt_validate } from "play-dl";
-const play = require('play-dl');
-
+import { stream, yt_validate } from "play-dl";
 
 export interface SongData {
   url: string;
-  title: string;
+  title: string | undefined;
   duration: number;
-  id: string;
+  id: string | undefined;
 }
 
 export class Song {
   public readonly url: string;
-  public readonly title: string;
+  public readonly title: string | undefined;
   public readonly duration: number;
-  public readonly id: string;
+  public readonly id: string | undefined;
 
   public constructor({ url, title, duration, id }: SongData) {
     this.url = url;
@@ -26,60 +23,44 @@ export class Song {
   }
 
   public static async from(url: string = "", search: string = "") {
-
     let songInfo;
 
-    /* POUR SPOTIFY PLUS TARD
-      if (url.startsWith('https') && sp_validate(url) === 'track') {
-      let sp_data = await play.spotify(url)
-      let result = await play.search(`${sp_data.name}`, {limit: 1})
-      songInfo = await play.video_info(result[0].url);
+    if (url.startsWith("https") && yt_validate(url) === "video") {
+      songInfo = await youtube.getVideo(url);
+
       return new this({
-        url: result[0].url,
-        title: songInfo.video_details.title,
-        duration: songInfo.video_details.durationInSec,
-        id: extractID(result[0].url)
+        url: songInfo.url,
+        title: songInfo.title,
+        duration: songInfo.duration / 1000,
+        id: songInfo.id,
       });
-
-    } else*/
-    if (url.startsWith('https') && yt_validate(url) === 'video') {
-
-      songInfo = await getInfo(url);
-      
-      return new this({
-        url: url,
-        title: songInfo.videoDetails.title,
-        duration: parseInt(songInfo.videoDetails.lengthSeconds),
-        id: extractID(url)
-      });
-
     } else {
-
-      const result = await youtube.searchOne(search);
-      url = `https://youtube.com/watch?v=${result.id}`;
-      songInfo = await await getInfo(url);
+      songInfo = await youtube.searchOne(search);
 
       return new this({
-        url: url,
-        title: songInfo.videoDetails.title,
-        duration: parseInt(songInfo.videoDetails.lengthSeconds),
-        id: extractID(url)
+        url: songInfo.url,
+        title: songInfo.title,
+        duration: songInfo.duration / 1000,
+        id: songInfo.id,
       });
     }
   }
 
   public async makeResource(): Promise<AudioResource<Song> | void> {
-    
-    let source
-    if (this.url.startsWith('https') && yt_validate(this.url) === 'video') {
+    let s;
+    if (this.url.startsWith("https") && yt_validate(this.url) === "video") {
       try {
-      let stream = await play.stream(this.url)
-      return createAudioResource(stream.stream, { metadata: this, inputType : stream.type, inlineVolume: true });
-      }catch (error) {
+        let s = await stream(this.url);
+        return createAudioResource(s.stream, {
+          metadata: this,
+          inputType: s.type,
+          inlineVolume: true,
+        });
+      } catch (error) {
         console.error(error);
         return;
       }
     }
-    if (!source) return;
+    if (!s) return;
   }
 }
