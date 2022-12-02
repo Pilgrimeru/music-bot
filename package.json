@@ -1,13 +1,12 @@
 {
-  "name": "evobot",
+  "name": "music-bot",
   "version": "2.3.1",
-  "description": "Discord music bot built with discord.js",
+  "description": "Bot de music basé sur EvoBot avec des boutons et play-dl",
   "main": "index.ts",
-  "author": "Erit Islami <eritislami@gmail.com>",
+  "author": "Pilgrimeru",
   "private": true,
-  "homepage": "https://github.com/eritislami/evobot",
-  "repository": "github:eritislami/evobot",
-  "bugs": "https://github.com/eritislami/evobot/issues",
+  "homepage": "https://github.com/Pilgrimeru/music-bot",
+  "repository": "github:Pilgrimeru/music-bot",
   "engines": {
     "node": ">=16.11.0"
   },
@@ -29,8 +28,7 @@
     "play-dl": "^1.9.5",
     "string-progressbar": "^1.0.4",
     "ts-node": "^10.9.1",
-    "youtube-sr": "~4.3.0",
-    "ytdl-core": "^4.11.2"
+    "youtube-sr": "~4.3.0"
   },
   "devDependencies": {
     "@types/i18n": "^0.13.2",
