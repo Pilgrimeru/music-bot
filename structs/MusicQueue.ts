@@ -15,7 +15,9 @@ import {
   MessageActionRow,
   MessageButton,
   TextChannel,
+  VoiceState,
 } from "discord.js";
+import console from "node:console";
 import { promisify } from "node:util";
 import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
@@ -31,72 +33,86 @@ export class MusicQueue {
   public readonly player: AudioPlayer;
   public readonly textChannel: TextChannel;
   public readonly bot = bot;
-
+  
+  public voiceChannel: any;
   public resource: AudioResource;
   public songs: Song[] = [];
   public volume = config.DEFAULT_VOLUME || 100;
   public loop = false;
   public muted = false;
   public waitTimeout: NodeJS.Timeout;
-  private queueLock = false;
   private NowPlayingCollector: any;
 
   public constructor(options: QueueOptions) {
     Object.assign(this, options);
-
     this.textChannel = options.message.channel as TextChannel;
     this.player = createAudioPlayer({
       behaviors: { noSubscriber: NoSubscriberBehavior.Play },
     });
     this.connection.subscribe(this.player);
+    
 
     this.connection.on(
       "stateChange" as any,
-      async (newState: VoiceConnectionState) => {
-        if (newState.status === VoiceConnectionStatus.Disconnected) {
+      async (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
+        if (newState.status === VoiceConnectionStatus.Disconnected &&
+          oldState.status !== VoiceConnectionStatus.Disconnected) {
           if (
-            newState.reason ===
-            VoiceConnectionDisconnectReason.WebSocketClose &&
-            newState.closeCode === 4014
-          ) {
-            try {
-              this.loop = false;
-              this.songs = [];
-              this.player.stop();
-            } catch (e) {
-              console.log(e);
+            newState.reason === VoiceConnectionDisconnectReason.WebSocketClose &&
+            this.songs.length
+            ) {
+            if (this.connection.rejoinAttempts < 5) {
+              await wait((this.connection.rejoinAttempts + 1) * 3_000);
+              this.connection.rejoin();
+            } else {
               this.stop();
             }
-          } else if (this.connection.rejoinAttempts < 5) {
-            await wait((this.connection.rejoinAttempts + 1) * 5_000);
-            this.connection.rejoin();
-          }
+            
         }
       }
-    );
+  });
 
-    this.player.on(
-      "stateChange" as any,
-      async (oldState: AudioPlayerState, newState: AudioPlayerState) => {
-        if (
-          oldState.status !== AudioPlayerStatus.Idle &&
-          newState.status === AudioPlayerStatus.Idle
-        ) {
-          if (this.loop && this.songs.length) {
-            this.songs.push(this.songs.shift()!);
-          } else {
-            this.songs.shift();
+  this.bot.client.on('voiceStateUpdate', async (oldMember : VoiceState) => {
+       let voiceChannel = oldMember.channel
+       if (this.connection.joinConfig.channelId) {
+        let clientChannel = this.bot.client.channels.cache.get(this.connection.joinConfig.channelId)
+        if (voiceChannel == clientChannel) {
+          let nbUser = voiceChannel.members.filter(
+            (member) => !member.user.bot
+          );
+          if (nbUser?.size == 0) {
+            this.stop();
           }
-
-          if (this.songs.length || this.resource) this.processQueue();
-        } else if (
-          oldState.status === AudioPlayerStatus.Buffering &&
-          newState.status === AudioPlayerStatus.Playing
-        ) {
-          this.sendPlayingMessage(newState);
         }
+       }
+    })
+
+  this.player.on(
+    "stateChange" as any,
+    async (oldState: AudioPlayerState, newState: AudioPlayerState) => {
+    if (
+      oldState.status !== AudioPlayerStatus.Idle &&
+      newState.status === AudioPlayerStatus.Idle
+    ) {
+      if (this.loop && this.songs.length) {
+        this.songs.push(this.songs.shift()!);
+      } else {
+        this.songs.shift();
       }
-    );
+
+      if (this.songs.length) {
+        this.processQueue()
+      } else {
+        !this.NowPlayingCollector.stop();
+        this.NowPlayingCollector = null;
+      }
+    } else if (
+      oldState.status === AudioPlayerStatus.Buffering &&
+      newState.status === AudioPlayerStatus.Playing
+    ) {
+        this.sendPlayingMessage(newState);
+    }
+  });
 
     this.player.on("error", (error) => {
       console.error(error);
@@ -134,26 +150,9 @@ export class MusicQueue {
   }
 
   public async processQueue(): Promise<void> {
-    if (this.queueLock || this.player.state.status !== AudioPlayerStatus.Idle) {
+    if (this.player.state.status !== AudioPlayerStatus.Idle) {
       return;
     }
-
-    if (!this.songs.length) {
-      !config.PRUNING &&
-        this.textChannel.send(i18n.__("play.queueEnded")).catch(console.error);
-      config.PRUNING &&
-        this.textChannel
-          .send(i18n.__("play.queueEnded"))
-          .then((msg) => setTimeout(() => msg.delete(), 10000))
-          .catch(console.error);
-      if (this.NowPlayingCollector) {
-        this.NowPlayingCollector.stop();
-        this.NowPlayingCollector = null;
-      }
-      return this.stop();
-    }
-
-    this.queueLock = true;
 
     const next = this.songs[0];
 
@@ -164,8 +163,6 @@ export class MusicQueue {
       this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
     } catch (error) {
       console.error(error);
-    } finally {
-      this.queueLock = false;
     }
   }
 
@@ -173,10 +170,10 @@ export class MusicQueue {
     const song = (newState.resource as AudioResource<Song>).metadata;
 
     if (this.NowPlayingCollector) {
-      this.NowPlayingCollector.stop();
+      this.NowPlayingCollector.stop()
       this.NowPlayingCollector = null;
     }
-
+    
     let NowPlayingMsg: Message;
 
     try {
