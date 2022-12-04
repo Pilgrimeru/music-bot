@@ -105,6 +105,7 @@ export class MusicQueue {
       } else {
         !this.NowPlayingCollector.stop();
         this.NowPlayingCollector = null;
+        this.stop();
       }
     } else if (
       oldState.status === AudioPlayerStatus.Buffering &&
