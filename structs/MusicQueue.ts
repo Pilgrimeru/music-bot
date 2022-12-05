@@ -71,7 +71,7 @@ export class MusicQueue {
         }
       });
 
-    this.bot.client.on('voiceStateUpdate', async (oldMember: VoiceState) => {
+    this.bot.client.on("voiceStateUpdate", async (oldMember: VoiceState) => {
       let voiceChannel = oldMember.channel
       let clientChannel = this.connection.joinConfig.channelId
       if (voiceChannel?.id == clientChannel) {
