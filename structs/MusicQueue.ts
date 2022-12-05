@@ -33,7 +33,7 @@ export class MusicQueue {
   public readonly player: AudioPlayer;
   public readonly textChannel: TextChannel;
   public readonly bot = bot;
-  
+
   public voiceChannel: any;
   public resource: AudioResource;
   public songs: Song[] = [];
@@ -50,7 +50,7 @@ export class MusicQueue {
       behaviors: { noSubscriber: NoSubscriberBehavior.Play },
     });
     this.connection.subscribe(this.player);
-    
+
 
     this.connection.on(
       "stateChange" as any,
@@ -60,60 +60,60 @@ export class MusicQueue {
           if (
             newState.reason === VoiceConnectionDisconnectReason.WebSocketClose &&
             this.songs.length
-            ) {
+          ) {
             if (this.connection.rejoinAttempts < 5) {
               await wait((this.connection.rejoinAttempts + 1) * 3_000);
               this.connection.rejoin();
             } else {
               this.stop();
             }
-            
-        }
-      }
-  });
-
-  this.bot.client.on('voiceStateUpdate', async (oldMember : VoiceState) => {
-       let voiceChannel = oldMember.channel
-       if (this.connection.joinConfig.channelId) {
-        let clientChannel = this.bot.client.channels.cache.get(this.connection.joinConfig.channelId)
-        if (voiceChannel == clientChannel) {
-          let nbUser = voiceChannel.members.filter(
-            (member) => !member.user.bot
-          );
-          if (nbUser?.size == 0) {
-            this.stop();
           }
         }
-       }
+      });
+
+    this.bot.client.on('voiceStateUpdate', async (oldMember: VoiceState) => {
+      let voiceChannel = oldMember.channel
+      let clientChannel = this.connection.joinConfig.channelId
+      if (voiceChannel?.id == clientChannel) {
+        let nbUser = voiceChannel?.members.filter(
+          (member) => !member.user.bot
+        );
+        if (nbUser?.size == 0) {
+          this.connection.destroy;
+          this.stop();
+        }
+      }
     })
 
-  this.player.on(
-    "stateChange" as any,
-    async (oldState: AudioPlayerState, newState: AudioPlayerState) => {
-    if (
-      oldState.status !== AudioPlayerStatus.Idle &&
-      newState.status === AudioPlayerStatus.Idle
-    ) {
-      if (this.loop && this.songs.length) {
-        this.songs.push(this.songs.shift()!);
-      } else {
-        this.songs.shift();
-      }
+    this.player.on(
+      "stateChange" as any,
+      async (oldState: AudioPlayerState, newState: AudioPlayerState) => {
+        if (
+          oldState.status !== AudioPlayerStatus.Idle &&
+          newState.status === AudioPlayerStatus.Idle
+        ) {
+          if (this.loop && this.songs.length) {
+            this.songs.push(this.songs.shift()!);
+          } else {
+            this.songs.shift();
+          }
 
-      if (this.songs.length) {
-        this.processQueue()
-      } else {
-        !this.NowPlayingCollector.stop();
-        this.NowPlayingCollector = null;
-        this.stop();
-      }
-    } else if (
-      oldState.status === AudioPlayerStatus.Buffering &&
-      newState.status === AudioPlayerStatus.Playing
-    ) {
-        this.sendPlayingMessage(newState);
-    }
-  });
+          if (this.songs.length) {
+            this.processQueue();
+          } else {
+            !this.NowPlayingCollector.stop();
+            this.NowPlayingCollector = null;
+            !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded"));
+            config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).then(msg => setTimeout(() => msg.delete(), 10000));
+            this.stop();
+          }
+        } else if (
+          oldState.status === AudioPlayerStatus.Buffering &&
+          newState.status === AudioPlayerStatus.Playing
+        ) {
+          this.sendPlayingMessage(newState);
+        }
+      });
 
     this.player.on("error", (error) => {
       console.error(error);
@@ -143,8 +143,7 @@ export class MusicQueue {
         if (!queue) {
           this.connection.destroy();
           bot.queues.delete(this.message.guild!.id);
-          !config.PRUNING &&
-            this.textChannel.send(i18n.__("play.leaveChannel"));
+          !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
         }
       }
     }, config.STAY_TIME * 1000);
@@ -174,54 +173,49 @@ export class MusicQueue {
       this.NowPlayingCollector.stop()
       this.NowPlayingCollector = null;
     }
-    
+
     let NowPlayingMsg: Message;
 
-    try {
-      const row = new MessageActionRow().addComponents(
-        new MessageButton()
-          .setCustomId("stop")
-          .setEmoji("⏹")
-          .setStyle("SECONDARY"),
+    const row = new MessageActionRow().addComponents(
+      new MessageButton()
+        .setCustomId("stop")
+        .setEmoji("⏹")
+        .setStyle("SECONDARY"),
 
-        new MessageButton()
-          .setCustomId("pause")
-          .setEmoji("⏸")
-          .setStyle("SECONDARY"),
+      new MessageButton()
+        .setCustomId("pause")
+        .setEmoji("⏸")
+        .setStyle("SECONDARY"),
 
-        new MessageButton()
-          .setCustomId("skip")
-          .setEmoji("⏭")
-          .setStyle("SECONDARY")
-      );
+      new MessageButton()
+        .setCustomId("skip")
+        .setEmoji("⏭")
+        .setStyle("SECONDARY")
+    );
 
-      let time = "LIVE";
-      if (song.duration > 0) {
-        if (song.duration/3600 >= 1) {
-          time = new Date(song.duration * 1000).toISOString().substr(11, 8);
-        } else {
-          time = new Date(song.duration * 1000).toISOString().substr(14, 5);
-        }
+    let time = "LIVE";
+    if (song.duration > 0) {
+      if (song.duration / 3600 >= 1) {
+        time = new Date(song.duration * 1000).toISOString().substr(11, 8);
+      } else {
+        time = new Date(song.duration * 1000).toISOString().substr(14, 5);
       }
-
-      NowPlayingMsg = await this.textChannel.send({
-        embeds: [
-          {
-            description: `${i18n.__mf("play.startedPlaying")}\n\n[${song.title
-              }](${song.url})\n${i18n.__mf("play.duration"," ")}\`${time}\``,
-            thumbnail: {
-              url: `https://i.ytimg.com/vi/${song.id}/hqdefault.jpg`,
-            },
-            color: 0x44b868,
-          },
-        ],
-        components: [row],
-      });
-    } catch (error: any) {
-      console.error(error);
-      this.textChannel.send(error.message);
-      return;
     }
+
+    NowPlayingMsg = await this.textChannel.send({
+      embeds: [
+        {
+          description: `${i18n.__mf("play.startedPlaying")}\n\n[${song.title
+            }](${song.url})\n${i18n.__mf("play.duration", " ")}\`${time}\``,
+          thumbnail: {
+            url: `https://i.ytimg.com/vi/${song.id}/hqdefault.jpg`,
+          },
+          color: 0x44b868,
+        },
+      ],
+      components: [row],
+    });
+
     const collector = NowPlayingMsg.createMessageComponentCollector();
     this.NowPlayingCollector = collector;
 
