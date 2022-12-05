@@ -39,7 +39,6 @@ export class MusicQueue {
   public songs: Song[] = [];
   public volume = config.DEFAULT_VOLUME || 100;
   public loop = false;
-  public muted = false;
   public waitTimeout: NodeJS.Timeout;
   private NowPlayingCollector: any;
 
