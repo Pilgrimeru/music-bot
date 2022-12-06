@@ -9,6 +9,7 @@ import {
   VoiceConnectionDisconnectReason,
   VoiceConnectionState,
   VoiceConnectionStatus,
+  PlayerSubscription,
 } from "@discordjs/voice";
 import {
   Message,
@@ -41,6 +42,7 @@ export class MusicQueue {
   public loop = false;
   public waitTimeout: NodeJS.Timeout;
   private NowPlayingCollector: any;
+  private subscription: PlayerSubscription | undefined;
 
   public constructor(options: QueueOptions) {
     Object.assign(this, options);
@@ -48,7 +50,7 @@ export class MusicQueue {
     this.player = createAudioPlayer({
       behaviors: { noSubscriber: NoSubscriberBehavior.Play },
     });
-    this.connection.subscribe(this.player);
+    this.subscription = this.connection.subscribe(this.player);
 
 
     this.connection.on(
@@ -136,6 +138,8 @@ export class MusicQueue {
     this.songs = [];
     this.player.stop();
     bot.queues.delete(this.message.guild!.id);
+    if (this.subscription) this.subscription.unsubscribe();
+    
     this.waitTimeout = setTimeout(() => {
       if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
         const queue = bot.queues.get(this.message.guild!.id);
