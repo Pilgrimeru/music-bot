@@ -35,14 +35,14 @@ export class MusicQueue {
   public readonly textChannel: TextChannel;
   public readonly bot = bot;
 
-  public voiceChannel: any;
   public resource: AudioResource;
+  private subscription: PlayerSubscription | undefined;
   public songs: Song[] = [];
   public volume = config.DEFAULT_VOLUME || 100;
   public loop = false;
   public waitTimeout: NodeJS.Timeout;
   private NowPlayingCollector: any;
-  private subscription: PlayerSubscription | undefined;
+
 
   public constructor(options: QueueOptions) {
     Object.assign(this, options);
