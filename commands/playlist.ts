@@ -1,9 +1,8 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
-import { Message, MessageEmbed } from "discord.js";
+import { Message } from "discord.js";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Playlist } from "../structs/Playlist";
-import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
 
 export default {
@@ -11,7 +10,7 @@ export default {
   cooldown: 5,
   aliases: ["pl"],
   description: i18n.__("playlist.description"),
-  permissions: ["CONNECT", "SPEAK", "ADD_REACTIONS", "MANAGE_MESSAGES"],
+  permissions: ["CONNECT", "SPEAK"],
   async execute(message: Message, args: any[]) {
     const { channel } = message.member!.voice;
 
@@ -54,23 +53,9 @@ export default {
       newQueue.enqueue(playlist.videos[0]);
     }
 
-    /*let playlistEmbed = new MessageEmbed()
-      .setTitle(`${playlist.data.title}`)
-      .setDescription(
-        playlist.videos.map((song: Song, index: number) => `${index + 1}. ${song.title}`).join("\n")
-      )
-      .setURL(playlist.data.url!)
-      .setColor("#F8AA2A")
-      .setTimestamp();
-
-    if (playlistEmbed.description!.length >= 2048)
-      playlistEmbed.description =
-        playlistEmbed.description!.substr(0, 2007) + i18n.__("playlist.playlistCharLimit");*/
-
     message
       .reply({
         content: i18n.__mf("playlist.startedPlaylist"),
-        //embeds: [playlistEmbed]
       })
       .then(msg => setTimeout(() => msg.delete(), 10000))
       .catch(console.error);

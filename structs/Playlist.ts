@@ -1,7 +1,6 @@
 import youtube, { Playlist as YoutubePlaylist } from "youtube-sr";
 import { config } from "../utils/config";
 import { Song } from "./Song";
-const pattern = /^.*(youtu.be\/|list=)([^#\&\?]*).*/i;
 
 export class Playlist {
   public data: YoutubePlaylist;
@@ -24,7 +23,7 @@ export class Playlist {
   }
 
   public static async from(url: string = "", search: string = "") {
-    const urlValid = pattern.test(url);
+    const urlValid = youtube.isPlaylist(url);
     let playlist;
 
     if (urlValid) {

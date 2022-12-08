@@ -4,7 +4,7 @@ import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
-import { playlistPattern } from "../utils/patterns";
+import {yt_validate } from "play-dl";
 
 export default {
   name: "play",
@@ -31,7 +31,7 @@ export default {
     const loadingReply = await message.reply(i18n.__mf("common.loading"));
 
     // Start the playlist if playlist url was provided
-    if (playlistPattern.test(args[0])) {
+    if (yt_validate(args[0]) === "playlist") {
       await loadingReply.delete();
       return bot.commands.get("playlist")!.execute(message, args);
     }

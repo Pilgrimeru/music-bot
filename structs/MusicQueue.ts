@@ -80,7 +80,6 @@ export class MusicQueue {
           (member) => !member.user.bot
         );
         if (nbUser?.size == 0) {
-          this.connection.destroy;
           this.stop();
         }
       }
@@ -118,6 +117,7 @@ export class MusicQueue {
 
     this.player.on("error", (error) => {
       console.error(error);
+      this.textChannel.send(error.message);
       if (this.loop && this.songs.length) {
         this.songs.push(this.songs.shift()!);
       } else {

@@ -73,7 +73,7 @@ export default {
 };
 
 function generateQueueEmbed(message: Message, songs: Song[]) {
-  let embeds = [];
+  let embeds : any = [];
   let k = 10;
 
   for (let i = 0; i < songs.length; i += 10) {
