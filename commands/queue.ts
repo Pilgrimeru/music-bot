@@ -1,4 +1,4 @@
-import { Interaction, Message, MessageEmbed, MessageActionRow, MessageButton, User } from "discord.js";
+import { Message, MessageEmbed, MessageActionRow, MessageButton } from "discord.js";
 import { bot } from "../index";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
@@ -8,7 +8,6 @@ export default {
   cooldown: 5,
   aliases: ["q"],
   description: i18n.__("queue.description"),
-  permissions: ["MANAGE_MESSAGES", "ADD_REACTIONS"],
   async execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
     if (!queue || !queue.songs.length) return message.reply(i18n.__("queue.errorNotQueue"));

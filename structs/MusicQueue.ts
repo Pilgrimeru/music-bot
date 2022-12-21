@@ -29,48 +29,46 @@ import { Song } from "./Song";
 const wait = promisify(setTimeout);
 
 export class MusicQueue {
-  public readonly message: Message;
+
+  public readonly textChannel: TextChannel;
   public readonly connection: VoiceConnection;
   public readonly player: AudioPlayer;
-  public readonly textChannel: TextChannel;
-  public readonly bot = bot;
-
-  public resource: AudioResource;
-  private subscription: PlayerSubscription | undefined;
+  private readonly message: Message;
+  private readonly bot = bot;
+ 
   public songs: Song[] = [];
   public volume = config.DEFAULT_VOLUME || 100;
   public loop = false;
-  public waitTimeout: NodeJS.Timeout;
-  private NowPlayingCollector: any;
-
+  public resource: AudioResource;
+ 
+  private subscription: PlayerSubscription | undefined;
+  private waitTimeout: NodeJS.Timeout;
+  private NowPlayingCollector: any ;
 
   public constructor(options: QueueOptions) {
     Object.assign(this, options);
     this.textChannel = options.message.channel as TextChannel;
     this.player = createAudioPlayer({
-      behaviors: { noSubscriber: NoSubscriberBehavior.Play },
+      behaviors: { noSubscriber: NoSubscriberBehavior.Stop },
     });
     this.subscription = this.connection.subscribe(this.player);
 
-
-    this.connection.on(
-      "stateChange" as any,
-      async (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
-        if (newState.status === VoiceConnectionStatus.Disconnected &&
-          oldState.status !== VoiceConnectionStatus.Disconnected) {
-          if (
-            newState.reason === VoiceConnectionDisconnectReason.WebSocketClose &&
-            this.songs.length
-          ) {
-            if (this.connection.rejoinAttempts < 5) {
-              await wait((this.connection.rejoinAttempts + 1) * 3_000);
-              this.connection.rejoin();
-            } else {
-              this.stop();
-            }
+    this.connection.on("stateChange", async (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
+      if (newState.status === VoiceConnectionStatus.Disconnected &&
+        oldState.status !== VoiceConnectionStatus.Disconnected) {
+        if (
+          newState.reason === VoiceConnectionDisconnectReason.WebSocketClose &&
+          this.songs.length
+        ) {
+          if (this.connection.rejoinAttempts < 5) {
+            await wait((this.connection.rejoinAttempts + 1) * 3_000);
+            this.connection.rejoin();
+          } else {
+            this.stop();
           }
         }
-      });
+      }
+    });
 
     this.bot.client.on("voiceStateUpdate", async (oldMember: VoiceState) => {
       let voiceChannel = oldMember.channel
@@ -85,46 +83,45 @@ export class MusicQueue {
       }
     })
 
-    this.player.on(
-      "stateChange" as any,
-      async (oldState: AudioPlayerState, newState: AudioPlayerState) => {
-        if (
-          oldState.status !== AudioPlayerStatus.Idle &&
-          newState.status === AudioPlayerStatus.Idle
-        ) {
-          if (this.loop && this.songs.length) {
-            this.songs.push(this.songs.shift()!);
-          } else {
-            this.songs.shift();
-          }
-
-          if (this.songs.length) {
-            this.processQueue();
-          } else {
-            !this.NowPlayingCollector.stop();
-            this.NowPlayingCollector = null;
-            !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded"));
-            config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).then(msg => setTimeout(() => msg.delete(), 10000));
-            this.stop();
-          }
-        } else if (
-          oldState.status === AudioPlayerStatus.Buffering &&
-          newState.status === AudioPlayerStatus.Playing
-        ) {
-          this.sendPlayingMessage(newState);
-        }
-      });
+    this.player.on("stateChange", async (oldState: AudioPlayerState, newState: AudioPlayerState) => {
+      if (
+        oldState.status !== AudioPlayerStatus.Idle &&
+        newState.status === AudioPlayerStatus.Idle
+      ) {
+        this.tryToPlayNewSong()
+      }
+    });
 
     this.player.on("error", (error) => {
       console.error(error);
       this.textChannel.send(error.message);
       if (this.loop && this.songs.length) {
-        this.songs.push(this.songs.shift()!);
+        this.enqueue(this.songs.shift()!)
       } else {
         this.songs.shift();
       }
       this.processQueue();
     });
+  }
+
+  private tryToPlayNewSong(){
+    
+    this.NowPlayingCollector?.stop();
+    this.NowPlayingCollector = null;
+
+    if (this.loop && this.songs.length) {
+      this.enqueue(this.songs.shift()!);
+    } else {
+      this.songs.shift();
+    }
+
+    if (this.songs.length) {
+      this.processQueue();
+    } else {
+      !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded"));
+      config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).then(msg => setTimeout(() => msg.delete(), 10000));
+      this.stop();
+    }
   }
 
   public enqueue(...songs: Song[]) {
@@ -152,7 +149,7 @@ export class MusicQueue {
     }, config.STAY_TIME * 1000);
   }
 
-  public async processQueue(): Promise<void> {
+  private async processQueue(): Promise<void> {
     if (this.player.state.status !== AudioPlayerStatus.Idle) {
       return;
     }
@@ -164,18 +161,14 @@ export class MusicQueue {
       this.resource = resource!;
       this.player.play(this.resource);
       this.resource.volume?.setVolumeLogarithmic(this.volume / 100);
+      this.sendPlayingMessage(this.resource);
     } catch (error) {
       console.error(error);
     }
   }
 
-  private async sendPlayingMessage(newState: any) {
-    const song = (newState.resource as AudioResource<Song>).metadata;
-
-    if (this.NowPlayingCollector) {
-      this.NowPlayingCollector.stop()
-      this.NowPlayingCollector = null;
-    }
+  private async sendPlayingMessage(resource: AudioResource) {
+    const song = (resource as AudioResource<Song>).metadata;
 
     let NowPlayingMsg: Message;
 

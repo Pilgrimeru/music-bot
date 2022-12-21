@@ -4,7 +4,8 @@ import { i18n } from "../utils/i18n";
 import { bot } from "../index";
 
 export default {
-  name: "np",
+  name: "nowplaying",
+  aliases: ["np"],
   cooldown: 10,
   description: i18n.__("nowplaying.description"),
   execute(message: Message) {

@@ -9,13 +9,13 @@ export default {
   execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("stop.errorNotQueue")).catch(console.error);
+    if (!queue) message.reply(i18n.__("stop.errorNotQueue")).catch(console.error);
     if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
 
-    queue.stop();
-    setTimeout(() => {
+    if (queue) setTimeout(() => {
       queue.textChannel.send(i18n.__mf("stop.result")).then(msg => setTimeout(() => msg.delete(), 10000))
     }, 500);
-    
+
+    queue?.stop();
   }
 };
