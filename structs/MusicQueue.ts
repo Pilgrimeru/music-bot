@@ -16,7 +16,7 @@ import {
   MessageActionRow,
   MessageButton,
   TextChannel,
-  VoiceState,
+  VoiceState
 } from "discord.js";
 import console from "node:console";
 import { promisify } from "node:util";
@@ -70,9 +70,9 @@ export class MusicQueue {
       }
     });
 
-    this.bot.client.on("voiceStateUpdate", async (oldMember: VoiceState) => {
-      let voiceChannel = oldMember.channel
-      let clientChannel = this.connection.joinConfig.channelId
+    this.bot.client.on("voiceStateUpdate", async (member: VoiceState) => {
+      let voiceChannel = member.channel
+      let clientChannel = member.guild.me!.voice.channelId
       if (voiceChannel?.id == clientChannel) {
         let nbUser = voiceChannel?.members.filter(
           (member) => !member.user.bot
@@ -88,39 +88,32 @@ export class MusicQueue {
         oldState.status !== AudioPlayerStatus.Idle &&
         newState.status === AudioPlayerStatus.Idle
       ) {
-        this.tryToPlayNewSong()
+        this.deleteEndedSong()
       }
     });
 
     this.player.on("error", (error) => {
       console.error(error);
-      this.textChannel.send(error.message);
-      if (this.loop && this.songs.length) {
-        this.enqueue(this.songs.shift()!)
-      } else {
-        this.songs.shift();
-      }
-      this.processQueue();
+      this.deleteEndedSong();
     });
   }
 
-  private tryToPlayNewSong(){
+  private deleteEndedSong(){
     
     this.NowPlayingCollector?.stop();
-    this.NowPlayingCollector = null;
 
     if (this.loop && this.songs.length) {
       this.enqueue(this.songs.shift()!);
     } else {
       this.songs.shift();
-    }
 
-    if (this.songs.length) {
-      this.processQueue();
-    } else {
-      !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded"));
-      config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).then(msg => setTimeout(() => msg.delete(), 10000));
-      this.stop();
+      if (this.songs.length) {
+        this.processQueue();
+      } else {
+        !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded"));
+        config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).then(msg => setTimeout(() => msg.delete(), 10000));
+        this.stop();
+      }
     }
   }
 
@@ -131,18 +124,18 @@ export class MusicQueue {
   }
 
   public stop() {
-    this.loop = false;
     this.songs = [];
+    this.loop = false;
     this.player.stop();
+    this.subscription?.unsubscribe();
     bot.queues.delete(this.message.guild!.id);
-    if (this.subscription) this.subscription.unsubscribe();
     
     this.waitTimeout = setTimeout(() => {
       if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
+
         const queue = bot.queues.get(this.message.guild!.id);
         if (!queue) {
           this.connection.destroy();
-          bot.queues.delete(this.message.guild!.id);
           !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
         }
       }
@@ -236,9 +229,8 @@ export class MusicQueue {
       }
     });
     collector.on("end", () => {
-      if (config.PRUNING) {
-        NowPlayingMsg.delete().catch();
-      }
+      if (config.PRUNING) NowPlayingMsg.delete().catch();
+      this.NowPlayingCollector = null;
     });
   }
 }
