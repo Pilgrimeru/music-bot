@@ -4,7 +4,8 @@ import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
-import {yt_validate } from "play-dl";
+import {sp_validate, yt_validate } from "play-dl";
+const { parse } = require('spotify-uri');
 
 export default {
   name: "play",
@@ -27,19 +28,33 @@ export default {
     if (!args.length) return message.reply(i18n.__mf("play.usageReply", { prefix: bot.prefix })).catch(console.error);
 
     const url = args[0];
+    var search = args.join(" ");
 
     const loadingReply = await message.reply(i18n.__mf("common.loading"));
 
     // Start the playlist if playlist url was provided
-    if (yt_validate(args[0]) === "playlist") {
+    if (yt_validate(url) === "playlist" || sp_validate(url) === "playlist" || sp_validate(url) === "album") {
       await loadingReply.delete();
       return bot.commands.get("playlist")!.execute(message, args);
     }
 
     let song;
+    if (sp_validate(url) === "track") {
+
+      await bot.spotifyApiConnect();
+
+      const trackId = parse(url).id;
+      
+      await bot.spotify.getTrack(trackId)
+      .then(function(data : any) {
+        search = data.body.name+" "+data.body.artists[0].name;
+      }, function(err : any) {
+        console.error(err);
+      });
+    }
 
     try {
-      song = await Song.from(url, args.join(" "));
+      song = await Song.from(url, search);
     } catch (error) {
       console.error(error);
       return message.reply(i18n.__("common.errorCommand")).catch(console.error);
@@ -48,7 +63,7 @@ export default {
     }
 
     if (queue) {
-      queue.enqueue(song);
+      queue.songs.push(song);
       
       return message
         .reply(i18n.__mf("play.queueAdded", { title: song.title}))

@@ -7,6 +7,8 @@ import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
 import { MissingPermissionsException } from "../utils/MissingPermissionsException";
 import { MusicQueue } from "./MusicQueue";
+const Spotify = require('spotify-web-api-node');
+
 
 const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
@@ -15,6 +17,10 @@ export class Bot {
   public commands = new Collection<string, Command>();
   public cooldowns = new Collection<string, Collection<Snowflake, number>>();
   public queues = new Collection<Snowflake, MusicQueue>();
+  public spotify = new Spotify({
+    clientId: config.SPOTIFY_CLIENT_ID,
+    clientSecret: config.SPOTIFY_CLIENT_SECRET
+  });
 
   public constructor(public readonly client: Client) {
     this.client.login(config.TOKEN);
@@ -29,6 +35,17 @@ export class Bot {
 
     this.importCommands();
     this.onMessageCreate();
+  }
+
+  public async spotifyApiConnect(){
+    let spotify = this.spotify;
+    await spotify.clientCredentialsGrant()
+    .then(function(data : any) {
+      spotify.setAccessToken(data.body['access_token']);
+    }, function(err : any) {
+      console.log('Something went wrong when retrieving an access token', err);
+    });
+    this.spotify = spotify;
   }
 
   private async importCommands() {

@@ -3,7 +3,10 @@ import { Message } from "discord.js";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Playlist } from "../structs/Playlist";
+import { SpotifyPlaylist } from "../structs/SpotifyPlaylist";
 import { i18n } from "../utils/i18n";
+import { sp_validate } from "play-dl";
+const { parse } = require('spotify-uri');
 
 export default {
   name: "playlist",
@@ -27,12 +30,34 @@ export default {
         .catch(console.error);
 
     let playlist;
+    const url = args[0];
 
-    try {
-      playlist = await Playlist.from(args[0], args.join(" "));
-    } catch (error) {
-      console.error(error);
-      return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).catch(console.error);
+    if (sp_validate(url) === "playlist" || sp_validate(url) === "album") {
+      try {
+        await bot.spotifyApiConnect();
+        const spotifyId = parse(url).id;
+
+        if (sp_validate(url) === "playlist") {
+          const result = await bot.spotify.getPlaylist(spotifyId);
+          playlist = await SpotifyPlaylist.from(result.body.tracks.items);
+        } else {
+          const result = await bot.spotify.getAlbum(spotifyId);
+          playlist = await SpotifyPlaylist.from(result.body.tracks.items);
+        }        
+
+      } catch (error) {
+        console.error(error);
+        return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).catch(console.error);
+      }
+
+    } else {
+      try {
+        var search = args.join(" ");
+        playlist = await Playlist.from(url, search);
+      } catch (error) {
+        console.error(error);
+        return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).catch(console.error);
+      }
     }
 
     if (queue) {
@@ -48,9 +73,7 @@ export default {
       });
 
       bot.queues.set(message.guild!.id, newQueue);
-      newQueue.songs.push(...playlist.videos);
-      
-      newQueue.enqueue(playlist.videos[0]);
+      newQueue.enqueue(...playlist.videos);
     }
 
     message

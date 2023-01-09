@@ -184,10 +184,10 @@ export class MusicQueue {
 
     let time = "LIVE";
     if (song.duration > 0) {
-      if (song.duration / 3600 >= 1) {
-        time = new Date(song.duration * 1000).toISOString().substr(11, 8);
+      if (song.duration / 360000 >= 1) {
+        time = new Date(song.duration).toISOString().substr(11, 8);
       } else {
-        time = new Date(song.duration * 1000).toISOString().substr(14, 5);
+        time = new Date(song.duration).toISOString().substr(14, 5);
       }
     }
 

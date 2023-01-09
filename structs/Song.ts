@@ -31,7 +31,7 @@ export class Song {
       return new this({
         url: songInfo.url,
         title: songInfo.title,
-        duration: songInfo.duration / 1000,
+        duration: songInfo.duration,
         id: songInfo.id,
       });
     } else {
@@ -40,7 +40,7 @@ export class Song {
       return new this({
         url: songInfo.url,
         title: songInfo.title,
-        duration: songInfo.duration / 1000,
+        duration: songInfo.duration,
         id: songInfo.id,
       });
     }

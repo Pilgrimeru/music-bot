@@ -26,6 +26,8 @@
     "i18n": "^0.15.1",
     "lyrics-finder": "^21.0.5",
     "play-dl": "^1.9.5",
+    "spotify-uri": "^3.0.3",
+    "spotify-web-api-node": "^5.0.2",
     "string-progressbar": "^1.0.4",
     "ts-node": "^10.9.1",
     "youtube-sr": "^4.3.0"
