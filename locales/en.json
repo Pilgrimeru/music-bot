@@ -21,7 +21,7 @@
   "move": {
     "description": "Move songs around in the queue",
     "errorNotQueue": "There is no queue.",
-    "usagesReply": "Usage: {prefix}move <Queue Number>",
+    "usagesReply": "Usage : {prefix}move <From number in the queue> <To number in the queue>",
     "result": "The track **\"{title}\"** has been moved to {index} in the queue."
   },
   "nowplaying": {

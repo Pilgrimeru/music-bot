@@ -182,7 +182,7 @@ export class MusicQueue {
         .setStyle("SECONDARY")
     );
 
-    let time = "LIVE";
+    let time = i18n.__mf("nowplaying.live");
     if (song.duration > 0) {
       if (song.duration / 360000 >= 1) {
         time = new Date(song.duration).toISOString().substr(11, 8);

@@ -20,9 +20,9 @@ export default {
     try {
       const row = new MessageActionRow().addComponents(
       
-        new MessageButton().setCustomId("gauche").setEmoji('⬅️').setStyle('SECONDARY'),
+        new MessageButton().setCustomId("left").setEmoji('⬅️').setStyle('SECONDARY'),
     
-        new MessageButton().setCustomId("droite").setEmoji('➡️').setStyle('SECONDARY'),
+        new MessageButton().setCustomId("right").setEmoji('➡️').setStyle('SECONDARY'),
         
         );
 
@@ -42,7 +42,7 @@ export default {
     const collector = queueEmbed.createMessageComponentCollector({time: 60000});
 
     collector.on('collect', async (q) => {
-      if(q.customId === "gauche") {
+      if(q.customId === "left") {
         if (currentPage !== 0) {
           --currentPage;
           queueEmbed.edit({
@@ -52,7 +52,7 @@ export default {
         }
         await q.deferUpdate();
       }
-      if(q.customId === "droite") {
+      if(q.customId === "right") {
         if (currentPage < embeds.length - 1) {
           currentPage++;
           queueEmbed.edit({
@@ -72,15 +72,15 @@ export default {
 };
 
 function generateQueueEmbed(message: Message, songs: Song[]) {
-  let embeds : any = [];
-  let k = 10;
+  let embeds : MessageEmbed[] = [];
+  let k = 11;
 
   for (let i = 0; i < songs.length; i += 10) {
-    const current = songs.slice(i, k);
-    let j = i;
+    const current = songs.slice(i+1, k);
+    let j = i+1;
     k += 10;
 
-    const info = current.map((track) => `${++j} - [${track.title}](${track.url})`).join("\n");
+    const info = current.map((track) => `${j++} - [${track.title}](${track.url})`).join("\n");
 
     const embed = new MessageEmbed()
       .setTitle(i18n.__("queue.embedTitle"))

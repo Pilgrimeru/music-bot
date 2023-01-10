@@ -17,17 +17,19 @@ export default {
 
     if (!args.length) return message.reply(i18n.__mf("move.usagesReply", { prefix: bot.prefix }));
 
-    if (isNaN(args[0]) || args[0] <= 1)
+    if (isNaN(args[0]) || args[0] < 1)
       return message.reply(i18n.__mf("move.usagesReply", { prefix: bot.prefix }));
+    
+    if (!args[1]) args[1] = 1;
+    
+    let song = queue.songs[args[0]];
 
-    let song = queue.songs[args[0] - 1];
-
-    queue.songs = move(queue.songs, args[0] - 1, args[1] == 1 ? 1 : args[1] - 1);
+    queue.songs = move(queue.songs, args[0], args[1]);
 
     queue.textChannel.send(
       i18n.__mf("move.result", {
         title: song.title,
-        index: args[1] == 1 ? 1 : args[1]
+        index: args[1]
       })
     ).then(msg => setTimeout(() => msg.delete(), 10000));
   }

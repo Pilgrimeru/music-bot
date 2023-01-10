@@ -21,7 +21,7 @@
   "move": {
     "description": "Déplacez les chansons de la file d'attente",
     "errorNotQueue": "Il n'y a pas de file d'attente.",
-    "usagesReply": "Utilisation: {prefix}move <Nombre dans la file d'attente>",
+    "usagesReply": "Utilisation : {prefix}move <De numero dans la file d'attente> <Vers numero dans la file d'attente>",
     "result": "Le morceau **\"{title}\"** a été déplacé vers {index} dans la file d'attente."
   },
   "nowplaying": {
@@ -89,13 +89,13 @@
     "missingPermissionMessage": "Il me manque l'autorisation de gérer les messages ou d'ajouter des réactions",
     "errorNotQueue": "❌ **Rien ne joue sur ce serveur**",
     "currentPage": "Page actuelle - ",
-    "embedTitle": "Song Queue\n",
+    "embedTitle": "File d'attente du serveur :\n",
     "embedCurrentSong": "**Morceau en cours - [{title}]({url})**\n\n{info}"
   },
   "remove": {
     "description": "Supprimer la chanson de la file d'attente",
     "errorNotQueue": "Il n'y a pas de file d'attente.",
-    "usageReply": "Utilisation: {prefix}remove <Nombre de la musique dans la file d'attente>",
+    "usageReply": "Utilisation: {prefix}remove <Numéro dans la file d'attente>",
     "result": "**{title}** a rétiré de la file d'attente."
   },
   "resume": {
@@ -124,7 +124,7 @@
   },
   "skipto": {
     "description": "Passer au numéro de file d'attente sélectionné",
-    "usageReply": "Utilisation: {prefix}{name} <Nombre dans la file d'attente>",
+    "usageReply": "Utilisation: {prefix}{name} <Numéro dans la file d'attente>",
     "errorNotQueue": "Il n'y a pas de file d'attente.",
     "errorNotValid": "La file d'attente contient seulement {length} chansons !",
     "result": "{arg} musiques passées"
