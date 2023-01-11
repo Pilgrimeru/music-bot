@@ -4,7 +4,7 @@ import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
 import { canModifyQueue } from "../utils/queue";
 
-const pattern = /^[0-9]{1,2}(\s*,\s*[0-9]{1,2})*$/;
+const pattern = /^[1-9][0-9]{0,2}(\s*,\s*[1-9][0-9]{0,2})*$/;
 
 export default {
   name: "remove",
@@ -23,11 +23,11 @@ export default {
 
     const songs = removeArgs.split(",").map((arg) => parseInt(arg));
 
-    let removed: Song[] = [];
-
     if (pattern.test(removeArgs)) {
+      let removed: Song[] = [];
+
       queue.songs = queue.songs.filter((item, index) => {
-        if (songs.find((songIndex) => songIndex - 1 === index)) removed.push(item);
+        if (songs.find((songIndex) => songIndex === index)) removed.push(item);
         else return true;
       });
 
@@ -35,11 +35,11 @@ export default {
         i18n.__mf("remove.result", {
           title: removed.map((song) => song.title).join("\n")
         })
-      );
-    } else if (!isNaN(args[0]) && args[0] >= 1 && args[0] <= queue.songs.length) {
+      ).then(msg => setTimeout(() => msg.delete(), 10000));
+    } else if (!isNaN(args[0]) && args[0] >= 1 && args[0] < queue.songs.length) {
       return queue.textChannel.send(
         i18n.__mf("remove.result", {
-          title: queue.songs.splice(args[0] - 1, 1)[0].title
+          title: queue.songs.splice(args[0] , 1)[0].title
         })
       );
     } else {

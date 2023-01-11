@@ -25,17 +25,17 @@ export default {
         .catch(console.error);
 
     if (queue.loop) {
-      for (let i = 0; i < args[0] - 2; i++) {
+      for (let i = 0; i < args[0] - 1; i++) {
         queue.songs.push(queue.songs.shift()!);
       }
     } else {
-      queue.songs = queue.songs.slice(args[0] - 2);
+      queue.songs = queue.songs.slice(args[0] - 1);
     }
 
     queue.player.stop();
 
     queue.textChannel
-      .send(i18n.__mf("skipto.result", { arg: args[0] - 1 }))
+      .send(i18n.__mf("skipto.result", { arg: args[0] }))
       .then(msg => setTimeout(() => msg.delete(), 10000))
       .catch(console.error);
   }

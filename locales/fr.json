@@ -96,7 +96,7 @@
     "description": "Supprimer la chanson de la file d'attente",
     "errorNotQueue": "Il n'y a pas de file d'attente.",
     "usageReply": "Utilisation: {prefix}remove <Numéro dans la file d'attente>",
-    "result": "**{title}** a rétiré de la file d'attente."
+    "result": "**{title}** a été rétiré de la file d'attente."
   },
   "resume": {
     "description": "Reprendre la lecture de la musique en cours",

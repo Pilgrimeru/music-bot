@@ -15,7 +15,7 @@ export default {
       return message.reply(i18n.__("nowplaying.errorNotQueue")).catch(console.error);
 
     const song = queue.songs[0];
-    const seek = queue.resource.playbackDuration / 1000;
+    const seek = queue.resource.playbackDuration;
     const left = song.duration - seek;
 
     let nowPlaying = new MessageEmbed()
@@ -27,22 +27,22 @@ export default {
       nowPlaying.addFields(
         { 
           name: "\u200b",
-          value:  new Date(seek * 1000).toISOString().substr(11, 8) +
+          value:  new Date(seek).toISOString().substr(11, 8) +
                   "[" +
                   splitBar(song.duration == 0 ? seek : song.duration, seek, 20)[0] +
                   "]" +
-                  (song.duration == 0 ? " ◉ LIVE" : new Date(song.duration * 1000).toISOString().substr(11, 8)),
+                  (song.duration == 0 ? i18n.__mf("nowplaying.live") : new Date(song.duration).toISOString().substr(11, 8)),
           inline: false 
         }
       );
 
       nowPlaying.setFooter({
         text: i18n.__mf("nowplaying.timeRemaining", {
-          time: new Date(left * 1000).toISOString().substr(11, 8)
+          time: new Date(left).toISOString().substr(11, 8)
         })
       });
     }
 
-    return message.reply({ embeds: [nowPlaying] }).then(msg => setTimeout(() => msg.delete(), 10000));
+    return message.reply({ embeds: [nowPlaying] }).then(msg => setTimeout(() => msg.delete(), 30000));
   }
 };
