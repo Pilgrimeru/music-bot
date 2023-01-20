@@ -39,7 +39,7 @@ export default {
       return;
     }
 
-    const collector = queueEmbed.createMessageComponentCollector({time: 60000});
+    const collector = queueEmbed.createMessageComponentCollector({time: 120000});
 
     collector.on('collect', async (q) => {
       if(q.customId === "left") {

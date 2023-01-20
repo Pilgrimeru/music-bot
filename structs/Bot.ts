@@ -10,6 +10,7 @@ import { MusicQueue } from "./MusicQueue";
 const Spotify = require('spotify-web-api-node');
 
 
+
 const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 
 export class Bot {
@@ -21,6 +22,7 @@ export class Bot {
     clientId: config.SPOTIFY_CLIENT_ID,
     clientSecret: config.SPOTIFY_CLIENT_SECRET
   });
+  private spotifyExpiration = 0;
 
   public constructor(public readonly client: Client) {
     this.client.login(config.TOKEN);
@@ -38,14 +40,11 @@ export class Bot {
   }
 
   public async spotifyApiConnect(){
-    let spotify = this.spotify;
-    await spotify.clientCredentialsGrant()
-    .then(function(data : any) {
-      spotify.setAccessToken(data.body['access_token']);
-    }, function(err : any) {
-      console.log('Something went wrong when retrieving an access token', err);
-    });
-    this.spotify = spotify;
+    if (this.spotifyExpiration < Date.now()) {
+      let data = await this.spotify.clientCredentialsGrant().catch()
+      this.spotify.setAccessToken(data.body['access_token']);
+      this.spotifyExpiration = (Date.now() + data.body['expires_in']*1000);
+    }
   }
 
   private async importCommands() {

@@ -38,11 +38,11 @@ export default {
         const spotifyId = parse(url).id;
 
         if (sp_validate(url) === "playlist") {
-          const result = await bot.spotify.getPlaylist(spotifyId);
-          playlist = await SpotifyPlaylist.from(result.body.tracks.items);
+          const result = await bot.spotify.getPlaylistTracks(spotifyId);
+          playlist = await SpotifyPlaylist.from(result.body.items);
         } else {
-          const result = await bot.spotify.getAlbum(spotifyId);
-          playlist = await SpotifyPlaylist.from(result.body.tracks.items);
+          const result = await bot.spotify.getAlbumTracks(spotifyId);
+          playlist = await SpotifyPlaylist.from(result.body.items);
         }        
 
       } catch (error) {

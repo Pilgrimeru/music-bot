@@ -24,13 +24,14 @@ export class Playlist {
 
   public static async from(url: string = "", search: string = "") {
     const urlValid = youtube.isPlaylist(url);
+    
     let playlist;
 
     if (urlValid) {
-      playlist = await youtube.getPlaylist(url);
+      playlist = await youtube.getPlaylist(url, { fetchAll: true });
     } else {
       const result = await youtube.searchOne(search, "playlist");
-      playlist = await youtube.getPlaylist(result.url!);
+      playlist = await youtube.getPlaylist(result.url!, { fetchAll: true } );
     }
 
     return new this(playlist);
