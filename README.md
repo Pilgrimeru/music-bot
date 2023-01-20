@@ -37,8 +37,10 @@ Copy or Rename `config.json.example` to `config.json` and fill out the values:
   "PREFIX": "!",
   "PRUNING": false,
   "LOCALE": "en",
-  "DEFAULT_VOLUME": 100,
-  "STAY_TIME": 30
+  "STAY_TIME": 30,
+  "DEFAULT_VOLUME": 100
+  "SPOTIFY_CLIENT_ID": "",
+  "SPOTIFY_CLIENT_SECRET": ""
 }
 ```
 
