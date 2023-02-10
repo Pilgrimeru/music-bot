@@ -13,8 +13,7 @@ import {
 } from "@discordjs/voice";
 import {
   Message,
-  MessageActionRow,
-  MessageButton,
+  ButtonStyle, ButtonBuilder, ActionRowBuilder,
   TextChannel,
   VoiceState
 } from "discord.js";
@@ -35,15 +34,15 @@ export class MusicQueue {
   public readonly player: AudioPlayer;
   private readonly message: Message;
   private readonly bot = bot;
- 
+
   public songs: Song[] = [];
   public volume = config.DEFAULT_VOLUME || 100;
   public loop = false;
   public resource: AudioResource;
- 
+
   private subscription: PlayerSubscription | undefined;
-  private waitTimeout: NodeJS.Timeout;
-  private NowPlayingCollector: any ;
+  private waitTimeout: NodeJS.Timeout | null;
+  private NowPlayingCollector: any;
 
   public constructor(options: QueueOptions) {
     Object.assign(this, options);
@@ -72,7 +71,7 @@ export class MusicQueue {
 
     this.bot.client.on("voiceStateUpdate", async (member: VoiceState) => {
       let voiceChannel = member.channel
-      let clientChannel = member.guild.me!.voice.channelId
+      let clientChannel = member.guild.members.me!.voice.channelId
       if (voiceChannel?.id == clientChannel) {
         let nbUser = voiceChannel?.members.filter(
           (member) => !member.user.bot
@@ -98,8 +97,8 @@ export class MusicQueue {
     });
   }
 
-  private deleteEndedSong(){
-    
+  private deleteEndedSong() {
+
     this.NowPlayingCollector?.stop();
 
     if (this.loop && this.songs.length) {
@@ -118,7 +117,10 @@ export class MusicQueue {
   }
 
   public enqueue(...songs: Song[]) {
-    if (typeof this.waitTimeout !== "undefined") clearTimeout(this.waitTimeout);
+    if (this.waitTimeout !== null) {
+      clearTimeout(this.waitTimeout);
+      this.waitTimeout = null;
+    } 
     this.songs = this.songs.concat(songs);
     this.processQueue();
   }
@@ -165,21 +167,21 @@ export class MusicQueue {
 
     let NowPlayingMsg: Message;
 
-    const row = new MessageActionRow().addComponents(
-      new MessageButton()
+    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+      new ButtonBuilder()
         .setCustomId("stop")
         .setEmoji("⏹")
-        .setStyle("SECONDARY"),
+        .setStyle(ButtonStyle.Secondary),
 
-      new MessageButton()
+      new ButtonBuilder()
         .setCustomId("pause")
         .setEmoji("⏸")
-        .setStyle("SECONDARY"),
+        .setStyle(ButtonStyle.Secondary),
 
-      new MessageButton()
+      new ButtonBuilder()
         .setCustomId("skip")
         .setEmoji("⏭")
-        .setStyle("SECONDARY")
+        .setStyle(ButtonStyle.Secondary)
     );
 
     let time = i18n.__mf("nowplaying.live");
@@ -208,29 +210,33 @@ export class MusicQueue {
     const collector = NowPlayingMsg.createMessageComponentCollector();
     this.NowPlayingCollector = collector;
 
-    collector.on("collect", async (b) => {
-      if (b.customId === "stop") {
-        await this.bot.commands.get("stop")!.execute(this.message);
-        await b.deferUpdate();
-        collector.stop();
-      }
-      if (b.customId === "skip") {
-        await this.bot.commands.get("skip")!.execute(this.message);
-        await b.deferUpdate();
-        collector.stop();
-      }
-      if (b.customId === "pause") {
-        if (this.player.state.status == AudioPlayerStatus.Playing) {
-          await this.bot.commands.get("pause")!.execute(this.message);
-        } else {
-          await this.bot.commands.get("resume")!.execute(this.message);
+    try {
+      collector.on("collect", async (b) => {
+        if (b.customId === "stop") {
+          await this.bot.commands.get("stop")!.execute(this.message);
+          await b.deferUpdate();
+          collector.stop();
         }
-        await b.deferUpdate();
-      }
-    });
-    collector.on("end", () => {
-      if (config.PRUNING) NowPlayingMsg.delete().catch();
-      this.NowPlayingCollector = null;
-    });
+        if (b.customId === "skip") {
+          await this.bot.commands.get("skip")!.execute(this.message);
+          await b.deferUpdate();
+          collector.stop();
+        }
+        if (b.customId === "pause") {
+          if (this.player.state.status == AudioPlayerStatus.Playing) {
+            await this.bot.commands.get("pause")!.execute(this.message);
+          } else {
+            await this.bot.commands.get("resume")!.execute(this.message);
+          }
+          await b.deferUpdate();
+        }
+      })
+      collector.on("end", () => {
+        if (config.PRUNING) NowPlayingMsg.delete().catch();
+        this.NowPlayingCollector = null;
+      });
+    } catch (error) {
+      console.log("the message containing the button is not available anymore");
+    }
   }
 }

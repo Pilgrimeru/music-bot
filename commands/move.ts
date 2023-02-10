@@ -19,9 +19,9 @@ export default {
 
     if (isNaN(args[0]) || args[0] < 1)
       return message.reply(i18n.__mf("move.usagesReply", { prefix: bot.prefix }));
-    
+
     if (!args[1]) args[1] = 1;
-    
+
     let song = queue.songs[args[0]];
 
     queue.songs = move(queue.songs, args[0], args[1]);

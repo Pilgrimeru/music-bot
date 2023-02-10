@@ -1,5 +1,5 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
-import { Message } from "discord.js";
+import { Message, PermissionsBitField } from "discord.js";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Playlist } from "../structs/Playlist";
@@ -13,7 +13,10 @@ export default {
   cooldown: 5,
   aliases: ["pl"],
   description: i18n.__("playlist.description"),
-  permissions: ["CONNECT", "SPEAK"],
+  permissions: [
+    PermissionsBitField.Flags.Connect,
+    PermissionsBitField.Flags.Speak
+  ],
   async execute(message: Message, args: any[]) {
     const { channel } = message.member!.voice;
 
@@ -43,7 +46,7 @@ export default {
         } else {
           const result = await bot.spotify.getAlbumTracks(spotifyId);
           playlist = await SpotifyPlaylist.from(result.body.items);
-        }        
+        }
 
       } catch (error) {
         console.error(error);

@@ -1,10 +1,10 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
-import { Message } from "discord.js";
+import { Message, PermissionsBitField } from "discord.js";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
-import {sp_validate, yt_validate } from "play-dl";
+import { sp_validate, yt_validate } from "play-dl";
 const { parse } = require('spotify-uri');
 
 export default {
@@ -12,7 +12,10 @@ export default {
   cooldown: 3,
   aliases: ["p"],
   description: i18n.__("play.description"),
-  permissions: ["CONNECT", "SPEAK"],
+  permissions: [
+    PermissionsBitField.Flags.Connect,
+    PermissionsBitField.Flags.Speak
+  ],
   async execute(message: Message, args: string[]) {
     const { channel } = message.member!.voice;
 
@@ -44,13 +47,13 @@ export default {
       await bot.spotifyApiConnect();
 
       const trackId = parse(url).id;
-      
+
       await bot.spotify.getTrack(trackId)
-      .then(function(data : any) {
-        search = data.body.name+" "+data.body.artists[0].name;
-      }, function(err : any) {
-        console.error(err);
-      });
+        .then(function (data: any) {
+          search = data.body.name + " " + data.body.artists[0].name;
+        }, function (err: any) {
+          console.error(err);
+        });
     }
 
     try {
@@ -64,9 +67,9 @@ export default {
 
     if (queue) {
       queue.songs.push(song);
-      
+
       return message
-        .reply(i18n.__mf("play.queueAdded", { title: song.title}))
+        .reply(i18n.__mf("play.queueAdded", { title: song.title }))
         .then(msg => setTimeout(() => msg.delete(), 10000))
         .catch(console.error);
     }
@@ -79,7 +82,7 @@ export default {
         adapterCreator: channel.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator
       })
     });
-    
+
     bot.queues.set(message.guild!.id, newQueue);
 
     newQueue.enqueue(song);

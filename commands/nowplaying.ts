@@ -1,4 +1,4 @@
-import { Message, MessageEmbed } from "discord.js";
+import { Message, EmbedBuilder } from "discord.js";
 import { splitBar } from "string-progressbar";
 import { i18n } from "../utils/i18n";
 import { bot } from "../index";
@@ -18,21 +18,21 @@ export default {
     const seek = queue.resource.playbackDuration;
     const left = song.duration - seek;
 
-    let nowPlaying = new MessageEmbed()
+    let nowPlaying = new EmbedBuilder()
       .setTitle(i18n.__("nowplaying.embedTitle"))
       .setDescription(`${song.title}\n${song.url}`)
       .setColor("#F8AA2A");
 
     if (song.duration > 0) {
       nowPlaying.addFields(
-        { 
+        {
           name: "\u200b",
-          value:  new Date(seek).toISOString().substr(11, 8) +
-                  "[" +
-                  splitBar(song.duration == 0 ? seek : song.duration, seek, 20)[0] +
-                  "]" +
-                  (song.duration == 0 ? i18n.__mf("nowplaying.live") : new Date(song.duration).toISOString().substr(11, 8)),
-          inline: false 
+          value: new Date(seek).toISOString().substr(11, 8) +
+            "[" +
+            splitBar(song.duration == 0 ? seek : song.duration, seek, 20)[0] +
+            "]" +
+            (song.duration == 0 ? i18n.__mf("nowplaying.live") : new Date(song.duration).toISOString().substr(11, 8)),
+          inline: false
         }
       );
 

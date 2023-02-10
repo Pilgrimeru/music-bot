@@ -1,8 +1,8 @@
-import { Client, Collection, Snowflake } from "discord.js";
+import { Client, Collection, Snowflake, ActivityType } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { Command } from "../interfaces/Command";
-import { checkPermissions } from "../utils/checkPermissions";
+import { checkPermissions, PermissionResult } from "../utils/checkPermissions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
 import { MissingPermissionsException } from "../utils/MissingPermissionsException";
@@ -29,7 +29,7 @@ export class Bot {
 
     this.client.on("ready", () => {
       console.log(`${this.client.user!.username} ready!`);
-      client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: "LISTENING" });
+      client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: ActivityType.Listening });
     });
 
     this.client.on("warn", (info) => console.log(info));
@@ -39,11 +39,11 @@ export class Bot {
     this.onMessageCreate();
   }
 
-  public async spotifyApiConnect(){
+  public async spotifyApiConnect() {
     if (this.spotifyExpiration < Date.now()) {
       let data = await this.spotify.clientCredentialsGrant().catch()
       this.spotify.setAccessToken(data.body['access_token']);
-      this.spotifyExpiration = (Date.now() + data.body['expires_in']*1000);
+      this.spotifyExpiration = (Date.now() + data.body['expires_in'] * 1000);
     }
   }
 
@@ -96,7 +96,7 @@ export class Bot {
       setTimeout(() => timestamps.delete(message.author.id), cooldownAmount);
 
       try {
-        const permissionsCheck: any = await checkPermissions(command, message);
+        const permissionsCheck: PermissionResult = await checkPermissions(command, message);
 
         if (permissionsCheck.result) {
           command.execute(message, args);

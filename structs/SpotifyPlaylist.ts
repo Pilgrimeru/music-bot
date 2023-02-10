@@ -6,9 +6,9 @@ export class SpotifyPlaylist {
   public videos: Song[];
 
   public constructor(infos: Video[]) {
-    let videos : Song[] = [];
+    let videos: Song[] = [];
 
-    infos.map((track :Video) => {
+    infos.map((track: Video) => {
       if (track.url != undefined) {
         let song = new Song({
           url: track.url,
@@ -25,14 +25,14 @@ export class SpotifyPlaylist {
     });
   }
 
-  public static async from(tracks : []) {
-    let infos : any[];
+  public static async from(tracks: []) {
+    let infos: any[];
     infos = tracks.map(async (item: any) => {
-      if (!item.track){ 
-        let songInfo = await youtube.searchOne(item.name+" "+item.artists[0].name);
+      if (!item.track) {
+        let songInfo = await youtube.searchOne(item.name + " " + item.artists[0].name);
         return songInfo;
       } else {
-        let songInfo = await youtube.searchOne(item.track.name+" "+item.track.artists[0].name);
+        let songInfo = await youtube.searchOne(item.track.name + " " + item.track.artists[0].name);
         return songInfo;
       }
     });

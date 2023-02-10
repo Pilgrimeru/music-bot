@@ -39,7 +39,7 @@ export default {
     } else if (!isNaN(args[0]) && args[0] >= 1 && args[0] < queue.songs.length) {
       return queue.textChannel.send(
         i18n.__mf("remove.result", {
-          title: queue.songs.splice(args[0] , 1)[0].title
+          title: queue.songs.splice(args[0], 1)[0].title
         })
       );
     } else {
