@@ -40,7 +40,7 @@ export default {
         )
       );
 
-      let resultsMessage = await message.channel.send({ embeds: [resultsEmbed] });
+      let resultsMessage = await (message.channel as TextChannel).send({ embeds: [resultsEmbed] });
 
       function filter(msg: Message) {
         const pattern = /^[1-9][0]?(\s*,\s*[1-9][0]?)*$/;
@@ -49,11 +49,11 @@ export default {
 
       (message.channel as CustomTextChannel).activeCollector = true;
 
-      const response = await message.channel.awaitMessages({ filter, max: 1, time: 30000, errors: ["time"] });
+      const response = await (message.channel as TextChannel).awaitMessages({ filter, max: 1, time: 30000, errors: ["time"] });
       const reply = response.first()!.content;
 
       if (reply.includes(",")) {
-        let songs = reply.split(",").map((str) => str.trim());
+        let songs = reply.split(",").map((str : string) => str.trim());
 
         for (let song of songs) {
           await bot.commands.get("play")!.execute(message, [resultsEmbed.data.fields![parseInt(song) - 1].name]);

@@ -1,4 +1,4 @@
-import { Message } from "discord.js";
+import { Message, TextChannel } from "discord.js";
 import { writeFile } from "fs";
 import { Config } from "../interfaces/Config";
 import { i18n } from "../utils/i18n";
@@ -22,10 +22,10 @@ export default {
       writeFile("./config.json", JSON.stringify(config, null, 2), (err) => {
         if (err) {
           console.log(err);
-          return message.channel.send(i18n.__("pruning.errorWritingFile")).catch(console.error);
+          return (message.channel as TextChannel).send(i18n.__("pruning.errorWritingFile")).catch(console.error);
         }
 
-        return message.channel
+        return (message.channel as TextChannel)
           .send(
             i18n.__mf("pruning.result", {
               result: config!.PRUNING ? i18n.__("common.enabled") : i18n.__("common.disabled")
