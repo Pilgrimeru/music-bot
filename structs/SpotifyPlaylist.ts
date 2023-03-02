@@ -29,10 +29,10 @@ export class SpotifyPlaylist {
     let infos: any[];
     infos = tracks.map(async (item: any) => {
       if (!item.track) {
-        let songInfo = await youtube.searchOne(item.name + " " + item.artists[0].name);
+        let songInfo = await youtube.searchOne(item.artists[0].name + " " + item.name);
         return songInfo;
       } else {
-        let songInfo = await youtube.searchOne(item.track.name + " " + item.track.artists[0].name);
+        let songInfo = await youtube.searchOne(item.track.artists[0].name + " " + item.track.name);
         return songInfo;
       }
     });
