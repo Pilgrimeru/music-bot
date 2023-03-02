@@ -9,7 +9,7 @@ export default {
   execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) message.reply(i18n.__("stop.errorNotQueue")).catch(console.error);
+    if (!queue) message.reply(i18n.__("stop.errorNotQueue")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
     if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
 
     if (queue) setTimeout(() => {

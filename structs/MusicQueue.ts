@@ -1,6 +1,5 @@
 import {
   AudioPlayer,
-  AudioPlayerState,
   AudioPlayerStatus,
   AudioResource,
   createAudioPlayer,
@@ -15,7 +14,8 @@ import {
   Message,
   ButtonStyle, ButtonBuilder, ActionRowBuilder,
   TextChannel,
-  VoiceState
+  PermissionsBitField,
+  VoiceState,
 } from "discord.js";
 import console from "node:console";
 import { promisify } from "node:util";
@@ -23,6 +23,7 @@ import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
+import { canModifyQueue } from "../utils/queue";
 import { Song } from "./Song";
 
 const wait = promisify(setTimeout);
@@ -48,11 +49,17 @@ export class MusicQueue {
     Object.assign(this, options);
     this.textChannel = options.message.channel as TextChannel;
     this.player = createAudioPlayer({
-      behaviors: { noSubscriber: NoSubscriberBehavior.Stop },
+      behaviors: { 
+        maxMissedFrames: 45,
+        noSubscriber: NoSubscriberBehavior.Play
+      }
     });
     this.subscription = this.connection.subscribe(this.player);
 
     this.connection.on("stateChange", async (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
+      if (oldState.status === VoiceConnectionStatus.Ready && newState.status === VoiceConnectionStatus.Connecting) {
+        this.connection.configureNetworking();
+      }
       if (newState.status === VoiceConnectionStatus.Disconnected &&
         oldState.status !== VoiceConnectionStatus.Disconnected) {
         if (
@@ -69,10 +76,19 @@ export class MusicQueue {
       }
     });
 
+    this.player.on(AudioPlayerStatus.Idle, () => {
+      this.skip();
+    });
+
+    this.player.on("error", (error) => {
+      console.error(error.message);
+      this.skip();
+    });
+
     this.bot.client.on("voiceStateUpdate", async (member: VoiceState) => {
       let voiceChannel = member.channel
       let clientChannel = member.guild.members.me!.voice.channelId
-      if (voiceChannel?.id == clientChannel) {
+      if (voiceChannel?.id == clientChannel && this.player.state.status == AudioPlayerStatus.Playing) {
         let nbUser = voiceChannel?.members.filter(
           (member) => !member.user.bot
         );
@@ -81,24 +97,9 @@ export class MusicQueue {
         }
       }
     })
-
-    this.player.on("stateChange", async (oldState: AudioPlayerState, newState: AudioPlayerState) => {
-      if (
-        oldState.status !== AudioPlayerStatus.Idle &&
-        newState.status === AudioPlayerStatus.Idle
-      ) {
-        this.deleteEndedSong()
-      }
-    });
-
-    this.player.on("error", (error) => {
-      console.error(error);
-      this.deleteEndedSong();
-    });
   }
 
-  private deleteEndedSong() {
-
+  private skip() {
     this.NowPlayingCollector?.stop();
 
     if (this.loop && this.songs.length) {
@@ -187,9 +188,10 @@ export class MusicQueue {
     let time = i18n.__mf("nowplaying.live");
     if (song.duration > 0) {
       if (song.duration / 360000 >= 1) {
-        time = new Date(song.duration).toISOString().substr(11, 8);
+        time = new Date(song.duration).toISOString().slice(11, 19);
+
       } else {
-        time = new Date(song.duration).toISOString().substr(14, 5);
+        time = new Date(song.duration).toISOString().slice(14, 19);
       }
     }
 
@@ -209,34 +211,41 @@ export class MusicQueue {
 
     const collector = NowPlayingMsg.createMessageComponentCollector();
     this.NowPlayingCollector = collector;
+    
+    collector.on("collect", async (b) => {
+      let interactUser = await this.textChannel.guild.members.fetch(b.user);
+      let permission = this.textChannel.permissionsFor(interactUser).has(PermissionsBitField.Flags.SendMessages, true);
 
-    try {
-      collector.on("collect", async (b) => {
-        if (b.customId === "stop") {
-          await this.bot.commands.get("stop")!.execute(this.message);
-          await b.deferUpdate();
+      if (canModifyQueue(interactUser)){
+          if (b.customId === "stop" && permission) {
+          this.stop();
+          this.textChannel.send(i18n.__("stop.result")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
           collector.stop();
         }
-        if (b.customId === "skip") {
-          await this.bot.commands.get("skip")!.execute(this.message);
-          await b.deferUpdate();
+        if (b.customId === "skip" && permission) {
+          this.player.stop(true);
+          this.textChannel.send(i18n.__mf("skip.result")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
           collector.stop();
         }
-        if (b.customId === "pause") {
+        if (b.customId === "pause" && permission) {
           if (this.player.state.status == AudioPlayerStatus.Playing) {
-            await this.bot.commands.get("pause")!.execute(this.message);
+            this.player.pause();
+            this.textChannel.send(i18n.__mf("pause.result")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
           } else {
-            await this.bot.commands.get("resume")!.execute(this.message);
+            this.player.unpause();
+            this.textChannel.send(i18n.__mf("resume.resultNotPlaying")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
           }
-          await b.deferUpdate();
         }
-      })
-      collector.on("end", () => {
-        if (config.PRUNING) NowPlayingMsg.delete().catch();
-        this.NowPlayingCollector = null;
-      });
-    } catch (error) {
-      console.log("the message containing the button is not available anymore");
-    }
+      } else {
+        this.textChannel.send(i18n.__("common.errorNotChannel"))
+          .then(msg => setTimeout(() => msg.delete(), 10000))
+          .catch(console.error);
+      }
+      await b.deferUpdate();
+    })
+    collector.on("end", () => {
+      if (config.PRUNING) NowPlayingMsg.delete().catch(() => null);
+      this.NowPlayingCollector = null;
+    });
   }
 }

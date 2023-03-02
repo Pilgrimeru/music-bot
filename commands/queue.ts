@@ -64,7 +64,7 @@ export default {
     });
     collector.on("end", () => {
       setTimeout(() => {
-        queueEmbed.delete().catch();
+        queueEmbed.delete().catch(() => null);
       }, 5);
     });
   }
