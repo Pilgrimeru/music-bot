@@ -50,7 +50,7 @@ export default {
 
       await bot.spotify.getTrack(trackId)
         .then(function (data: any) {
-          search = data.body.name + " " + data.body.artists[0].name;
+          search = data.body.artists[0].name + " " + data.body.name;
         }, function (err: any) {
           console.error(err);
         });
