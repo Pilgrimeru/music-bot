@@ -27,22 +27,22 @@ export default {
       nowPlaying.addFields(
         {
           name: "\u200b",
-          value: new Date(seek).toISOString().substr(11, 8) +
+          value: new Date(seek).toISOString().slice(11, 19) +
             "[" +
             splitBar(song.duration == 0 ? seek : song.duration, seek, 20)[0] +
             "]" +
-            (song.duration == 0 ? i18n.__mf("nowplaying.live") : new Date(song.duration).toISOString().substr(11, 8)),
+            (song.duration == 0 ? i18n.__mf("nowplaying.live") : new Date(song.duration).toISOString().slice(11, 19)),
           inline: false
         }
       );
 
       nowPlaying.setFooter({
         text: i18n.__mf("nowplaying.timeRemaining", {
-          time: new Date(left).toISOString().substr(11, 8)
+          time: new Date(left).toISOString().slice(11, 19)
         })
       });
     }
 
-    return message.reply({ embeds: [nowPlaying] }).then(msg => setTimeout(() => msg.delete(), 30000));
+    return message.reply({ embeds: [nowPlaying] }).then(msg => setTimeout(() => msg.delete(), 30000)).catch(() => null);
   }
 };

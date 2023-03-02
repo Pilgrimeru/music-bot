@@ -50,7 +50,13 @@ export class Song {
     let s;
     if (this.url.startsWith("https") && yt_validate(this.url) === "video") {
       try {
-        let s = await stream(this.url);
+        s = await stream(this.url, {
+          discordPlayerCompatibility: true,
+          htmldata: false,
+          precache: 30,
+          quality: 0, //Quality number. [ 0 = Lowest, 1 = Medium, 2 = Highest ]
+        })
+
         return createAudioResource(s.stream, {
           metadata: this,
           inputType: s.type,
@@ -58,9 +64,7 @@ export class Song {
         });
       } catch (error) {
         console.error(error);
-        return;
       }
     }
-    if (!s) return;
   }
 }

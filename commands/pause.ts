@@ -14,9 +14,7 @@ export default {
     if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
 
     if (queue.player.pause()) {
-      queue.textChannel.send(i18n.__mf("pause.result")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
-
-      return true;
+      message.reply(i18n.__mf("pause.result")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
     }
   }
 };

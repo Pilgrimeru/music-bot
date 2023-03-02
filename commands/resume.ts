@@ -14,15 +14,11 @@ export default {
     if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
 
     if (queue.player.unpause()) {
-      queue.textChannel
-        .send(i18n.__mf("resume.resultNotPlaying"))
+      message.reply(i18n.__mf("resume.resultNotPlaying"))
         .then(msg => setTimeout(() => msg.delete(), 10000))
         .catch(console.error);
-
-      return true;
     }
 
-    message.reply(i18n.__("resume.errorPlaying")).catch(console.error);
-    return false;
+    message.reply(i18n.__("resume.errorPlaying")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
   }
 };
