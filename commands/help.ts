@@ -1,6 +1,7 @@
 import { Message, EmbedBuilder } from "discord.js";
 import { i18n } from "../utils/i18n";
 import { bot } from "../index";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "help",
@@ -26,6 +27,6 @@ export default {
 
     helpEmbed.setTimestamp();
 
-    return message.reply({ embeds: [helpEmbed] }).then(msg => setTimeout(() => msg.delete(), 60000)).catch(() => null);
+    return message.reply({ embeds: [helpEmbed] }).then(msg => purning(msg, true));
   }
 };

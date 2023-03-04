@@ -3,6 +3,7 @@ import { i18n } from "../utils/i18n";
 // @ts-ignore
 import lyricsFinder from "lyrics-finder";
 import { bot } from "../index";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "lyrics",
@@ -11,7 +12,7 @@ export default {
   async execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue || !queue.songs.length) return message.reply(i18n.__("lyrics.errorNotQueue")).catch(console.error);
+    if (!queue || !queue.songs.length) return message.reply(i18n.__("lyrics.errorNotQueue")).then(msg => purning(msg));
 
     let lyrics = null;
     const title = queue.songs[0].title;
@@ -30,8 +31,8 @@ export default {
       .setTimestamp();
 
     if (lyricsEmbed.data.description!.length >= 2048)
-      lyricsEmbed.setDescription(`${lyricsEmbed.data.description!.substr(0, 2045)}...`);
+      lyricsEmbed.setDescription(`${lyricsEmbed.data.description!.slice(0, 4093)}...`);
 
-    return message.reply({ embeds: [lyricsEmbed] }).then(msg => setTimeout(() => msg.delete(), 420000)).catch(console.error);
+    return message.reply({ embeds: [lyricsEmbed] }).then(msg => purning(msg, true));
   }
 };

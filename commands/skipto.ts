@@ -2,6 +2,7 @@ import { canModifyQueue } from "../utils/queue";
 import { i18n } from "../utils/i18n";
 import { Message } from "discord.js";
 import { bot } from "../index";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "skipto",
@@ -11,18 +12,18 @@ export default {
     if (!args.length || isNaN(args[0]))
       return message
         .reply(i18n.__mf("skipto.usageReply", { prefix: bot.prefix, name: module.exports.name }))
-        .catch(console.error);
+        .then(msg => purning(msg));
 
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("skipto.errorNotQueue")).catch(console.error);
+    if (!queue) return message.reply(i18n.__("skipto.errorNotQueue")).then(msg => purning(msg));
 
     if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
 
     if (args[0] > queue.songs.length)
       return message
         .reply(i18n.__mf("skipto.errorNotValid", { length: queue.songs.length }))
-        .catch(console.error);
+        .then(msg => purning(msg));
 
     if (queue.loop) {
       for (let i = 0; i < args[0] - 1; i++) {
@@ -36,7 +37,6 @@ export default {
 
     queue.textChannel
       .send(i18n.__mf("skipto.result", { arg: args[0] }))
-      .then(msg => setTimeout(() => msg.delete(), 10000))
-      .catch(console.error);
+      .then(msg => purning(msg));
   }
 };

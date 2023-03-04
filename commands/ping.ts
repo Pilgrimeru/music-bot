@@ -1,5 +1,6 @@
 import { Message } from "discord.js";
 import { i18n } from "../utils/i18n";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "ping",
@@ -8,7 +9,6 @@ export default {
   execute(message: Message) {
     message
       .reply(i18n.__mf("ping.result", { ping: Math.round(message.client.ws.ping) }))
-      .then(msg => setTimeout(() => msg.delete(), 30000))
-      .catch(console.error);
+      .then(msg => purning(msg));
   }
 };

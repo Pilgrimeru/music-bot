@@ -6,6 +6,7 @@ import { Playlist } from "../structs/Playlist";
 import { SpotifyPlaylist } from "../structs/SpotifyPlaylist";
 import { i18n } from "../utils/i18n";
 import { sp_validate } from "play-dl";
+import { purning } from "../utils/pruning";
 const { parse } = require('spotify-uri');
 
 export default {
@@ -23,20 +24,20 @@ export default {
     const queue = bot.queues.get(message.guild!.id);
 
     if (!args.length)
-      return message.reply(i18n.__mf("playlist.usagesReply", { prefix: bot.prefix })).catch(console.error);
+      return message.reply(i18n.__mf("playlist.usagesReply", { prefix: bot.prefix })).then(msg => purning(msg));
 
-    if (!channel) return message.reply(i18n.__("playlist.errorNotChannel")).catch(console.error);
+    if (!channel) return message.reply(i18n.__("playlist.errorNotChannel")).then(msg => purning(msg));
 
     if (queue && channel.id !== queue.connection.joinConfig.channelId)
       return message
         .reply(i18n.__mf("play.errorNotInSameChannel", { user: message.client.user!.username }))
-        .catch(console.error);
+        .then(msg => purning(msg));
 
     let playlist;
     const url = args[0];
 
-    if (sp_validate(url) === "playlist" || sp_validate(url) === "album") {
-      try {
+    try {
+      if (sp_validate(url) === "playlist" || sp_validate(url) === "album") {
         await bot.spotifyApiConnect();
         const spotifyId = parse(url).id;
 
@@ -47,20 +48,13 @@ export default {
           const result = await bot.spotify.getAlbumTracks(spotifyId);
           playlist = await SpotifyPlaylist.from(result.body.items);
         }
-
-      } catch (error) {
-        console.error(error);
-        return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).catch(console.error);
-      }
-
-    } else {
-      try {
+      } else {
         var search = args.join(" ");
         playlist = await Playlist.from(url, search);
-      } catch (error) {
-        console.error(error);
-        return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).catch(console.error);
       }
+    } catch (error) {
+      console.error(error);
+      return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).then(msg => purning(msg));
     }
 
     if (queue) {
@@ -83,7 +77,6 @@ export default {
       .reply({
         content: i18n.__mf("playlist.startedPlaylist"),
       })
-      .then(msg => setTimeout(() => msg.delete(), 10000))
-      .catch(console.error);
+      .then(msg => purning(msg));
   }
 };

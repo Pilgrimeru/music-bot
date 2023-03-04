@@ -2,6 +2,7 @@ import { canModifyQueue } from "../utils/queue";
 import { i18n } from "../utils/i18n";
 import { Message } from "discord.js";
 import { bot } from "../index";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "shuffle",
@@ -9,9 +10,9 @@ export default {
   execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("shuffle.errorNotQueue")).catch(console.error);
+    if (!queue) return message.reply(i18n.__("shuffle.errorNotQueue")).then(msg => purning(msg));
 
-    if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
+    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(msg => purning(msg));
 
     let songs = queue.songs;
 
@@ -22,6 +23,6 @@ export default {
 
     queue.songs = songs;
 
-    queue.textChannel.send(i18n.__mf("shuffle.result")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
+    queue.textChannel.send(i18n.__mf("shuffle.result")).then(msg => purning(msg));
   }
 };

@@ -2,6 +2,7 @@ import { Message, EmbedBuilder } from "discord.js";
 import { splitBar } from "string-progressbar";
 import { i18n } from "../utils/i18n";
 import { bot } from "../index";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "nowplaying",
@@ -43,6 +44,6 @@ export default {
       });
     }
 
-    return message.reply({ embeds: [nowPlaying] }).then(msg => setTimeout(() => msg.delete(), 30000)).catch(() => null);
+    return message.reply({ embeds: [nowPlaying] }).then(msg => purning(msg, true));
   }
 };

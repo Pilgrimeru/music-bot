@@ -23,6 +23,7 @@ import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
+import { purning } from "../utils/pruning";
 import { canModifyQueue } from "../utils/queue";
 import { Song } from "./Song";
 
@@ -60,6 +61,7 @@ export class MusicQueue {
       if (oldState.status === VoiceConnectionStatus.Ready && newState.status === VoiceConnectionStatus.Connecting) {
         this.connection.configureNetworking();
       }
+
       if (newState.status === VoiceConnectionStatus.Disconnected &&
         oldState.status !== VoiceConnectionStatus.Disconnected) {
         if (
@@ -110,8 +112,7 @@ export class MusicQueue {
       if (this.songs.length) {
         this.processQueue();
       } else {
-        !config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded"));
-        config.PRUNING && this.textChannel.send(i18n.__("play.queueEnded")).then(msg => setTimeout(() => msg.delete(), 10000));
+        this.textChannel.send(i18n.__("play.queueEnded")).then(msg => purning(msg));
         this.stop();
       }
     }
@@ -139,7 +140,7 @@ export class MusicQueue {
         const queue = bot.queues.get(this.message.guild!.id);
         if (!queue) {
           this.connection.destroy();
-          !config.PRUNING && this.textChannel.send(i18n.__("play.leaveChannel"));
+          this.textChannel.send(i18n.__("play.leaveChannel")).then(msg => purning(msg));
         }
       }
     }, config.STAY_TIME * 1000);
@@ -219,32 +220,31 @@ export class MusicQueue {
       if (canModifyQueue(interactUser)){
           if (b.customId === "stop" && permission) {
           this.stop();
-          this.textChannel.send(i18n.__("stop.result")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
+          this.textChannel.send(i18n.__("stop.result")).then(msg => purning(msg));
           collector.stop();
         }
         if (b.customId === "skip" && permission) {
           this.player.stop(true);
-          this.textChannel.send(i18n.__mf("skip.result")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
+          this.textChannel.send(i18n.__mf("skip.result")).then(msg => purning(msg));
           collector.stop();
         }
         if (b.customId === "pause" && permission) {
           if (this.player.state.status == AudioPlayerStatus.Playing) {
             this.player.pause();
-            this.textChannel.send(i18n.__mf("pause.result")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
+            this.textChannel.send(i18n.__mf("pause.result")).then(msg => purning(msg));
           } else {
             this.player.unpause();
-            this.textChannel.send(i18n.__mf("resume.resultNotPlaying")).then(msg => setTimeout(() => msg.delete(), 10000)).catch(console.error);
+            this.textChannel.send(i18n.__mf("resume.resultNotPlaying")).then(msg => purning(msg));
           }
         }
       } else {
         this.textChannel.send(i18n.__("common.errorNotChannel"))
-          .then(msg => setTimeout(() => msg.delete(), 10000))
-          .catch(console.error);
+          .then(msg => purning(msg));
       }
       await b.deferUpdate();
     })
     collector.on("end", () => {
-      if (config.PRUNING) NowPlayingMsg.delete().catch(() => null);
+      NowPlayingMsg.delete().catch(() => null);
       this.NowPlayingCollector = null;
     });
   }

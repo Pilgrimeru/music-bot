@@ -2,6 +2,7 @@ import { Message, EmbedBuilder, ButtonStyle, ButtonBuilder, ActionRowBuilder } f
 import { bot } from "../index";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "queue",
@@ -10,7 +11,7 @@ export default {
   description: i18n.__("queue.description"),
   async execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
-    if (!queue || !queue.songs.length) return message.reply(i18n.__("queue.errorNotQueue"));
+    if (!queue || !queue.songs.length) return message.reply(i18n.__("queue.errorNotQueue")).then(msg => purning(msg));
 
     let currentPage = 0;
     const embeds = generateQueueEmbed(message, queue.songs);
@@ -63,9 +64,7 @@ export default {
       }
     });
     collector.on("end", () => {
-      setTimeout(() => {
-        queueEmbed.delete().catch(() => null);
-      }, 5);
+      queueEmbed.delete().catch(() => null);
     });
   }
 };

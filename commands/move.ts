@@ -3,6 +3,7 @@ import { Message } from "discord.js";
 import { i18n } from "../utils/i18n";
 import { canModifyQueue } from "../utils/queue";
 import { bot } from "../index";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "move",
@@ -11,14 +12,12 @@ export default {
   execute(message: Message, args: number[]) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("move.errorNotQueue")).catch(console.error);
+    if (!queue) return message.reply(i18n.__("move.errorNotQueue")).then(msg => purning(msg));
 
     if (!canModifyQueue(message.member!)) return;
 
-    if (!args.length) return message.reply(i18n.__mf("move.usagesReply", { prefix: bot.prefix }));
-
-    if (isNaN(args[0]) || args[0] < 1)
-      return message.reply(i18n.__mf("move.usagesReply", { prefix: bot.prefix }));
+    if (!args.length || isNaN(args[0]) || args[0] < 1)
+      return message.reply(i18n.__mf("move.usagesReply", { prefix: bot.prefix })).then(msg => purning(msg));
 
     if (!args[1]) args[1] = 1;
 
@@ -31,6 +30,6 @@ export default {
         title: song.title,
         index: args[1]
       })
-    ).then(msg => setTimeout(() => msg.delete(), 10000));
+    ).then(msg => purning(msg));
   }
 };

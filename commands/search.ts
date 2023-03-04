@@ -2,6 +2,7 @@ import { Message, EmbedBuilder, TextChannel } from "discord.js";
 import youtube from "youtube-sr";
 import { bot } from "../index";
 import { i18n } from "../utils/i18n";
+import { purning } from "../utils/pruning";
 
 type CustomTextChannel = TextChannel & { activeCollector: boolean };
 
@@ -12,12 +13,12 @@ export default {
     if (!args.length)
       return message
         .reply(i18n.__mf("search.usageReply", { prefix: bot.prefix, name: module.exports.name }))
-        .catch(console.error);
+        .then(msg => purning(msg));
 
     if ((message.channel as CustomTextChannel).activeCollector)
       return message.reply(i18n.__("search.errorAlreadyCollector"));
 
-    if (!message.member?.voice.channel) return message.reply(i18n.__("search.errorNotChannel")).catch(console.error);
+    if (!message.member?.voice.channel) return message.reply(i18n.__("search.errorNotChannel")).then(msg => purning(msg));
 
     const search = args.join(" ");
 
@@ -69,7 +70,7 @@ export default {
     } catch (error: any) {
       console.error(error);
       (message.channel as CustomTextChannel).activeCollector = false;
-      message.reply(i18n.__("common.errorCommand")).catch(console.error);
+      message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
     }
   }
 };

@@ -2,6 +2,7 @@ import { Message } from "discord.js";
 import { i18n } from "../utils/i18n";
 import { canModifyQueue } from "../utils/queue";
 import { bot } from "../index";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "loop",
@@ -17,7 +18,6 @@ export default {
 
     return message
       .reply(i18n.__mf("loop.result", { loop: queue.loop ? i18n.__("common.on") : i18n.__("common.off") }))
-      .then(msg => setTimeout(() => msg.delete(), 10000))
-      .catch(console.error);
+      .then(msg => purning(msg));
   }
 };

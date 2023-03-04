@@ -5,7 +5,8 @@ import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
 import { sp_validate, yt_validate } from "play-dl";
-const { parse } = require('spotify-uri');
+import { purning } from "../utils/pruning";
+import { parse, Track } from 'spotify-uri';
 
 export default {
   name: "play",
@@ -19,16 +20,16 @@ export default {
   async execute(message: Message, args: string[]) {
     const { channel } = message.member!.voice;
 
-    if (!channel) return message.reply(i18n.__("play.errorNotChannel")).catch(console.error);
+    if (!channel) return message.reply(i18n.__("play.errorNotChannel")).then(msg => purning(msg));
 
     const queue = bot.queues.get(message.guild!.id);
 
     if (queue && channel.id !== queue.connection.joinConfig.channelId)
       return message
         .reply(i18n.__mf("play.errorNotInSameChannel", { user: bot.client.user!.username }))
-        .catch(console.error);
+        .then(msg => purning(msg));
 
-    if (!args.length) return message.reply(i18n.__mf("play.usageReply", { prefix: bot.prefix })).catch(console.error);
+    if (!args.length) return message.reply(i18n.__mf("play.usageReply", { prefix: bot.prefix })).then(msg => purning(msg));
 
     const url = args[0];
     var search = args.join(" ");
@@ -46,7 +47,7 @@ export default {
 
       await bot.spotifyApiConnect();
 
-      const trackId = parse(url).id;
+      const trackId = (parse(url) as Track).id;
 
       await bot.spotify.getTrack(trackId)
         .then(function (data: any) {
