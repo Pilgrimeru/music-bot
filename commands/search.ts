@@ -54,7 +54,7 @@ export default {
       const reply = response.first()!.content;
 
       if (reply.includes(",")) {
-        let songs = reply.split(",").map((str : string) => str.trim());
+        let songs = reply.split(",").map((str: string) => str.trim());
 
         for (let song of songs) {
           await bot.commands.get("play")!.execute(message, [resultsEmbed.data.fields![parseInt(song) - 1].name]);

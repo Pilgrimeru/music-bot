@@ -7,7 +7,7 @@ import { SpotifyPlaylist } from "../structs/SpotifyPlaylist";
 import { i18n } from "../utils/i18n";
 import { sp_validate } from "play-dl";
 import { purning } from "../utils/pruning";
-const { parse } = require('spotify-uri');
+import { parse, Playlist as ParsedPlaylist } from 'spotify-uri';
 
 export default {
   name: "playlist",
@@ -39,7 +39,7 @@ export default {
     try {
       if (sp_validate(url) === "playlist" || sp_validate(url) === "album") {
         await bot.spotifyApiConnect();
-        const spotifyId = parse(url).id;
+        const spotifyId = (parse(url) as ParsedPlaylist).id;
 
         if (sp_validate(url) === "playlist") {
           const result = await bot.spotify.getPlaylistTracks(spotifyId);

@@ -1,7 +1,7 @@
 {
-  "name": "EvoBot",
-  "description": "🤖 Discord Music Bot built with discord.js",
-  "repository": "https://github.com/eritislami/evobot",
-  "logo": "https://i.imgur.com/JFxgbWH.png",
+  "name": "music-bot",
+  "description": "🤖 Fork of EvoBot with buttons, play-dl, spotify support and bug fixes.",
+  "repository": "https://github.com/Pilgrimeru/music-bot",
+  "logo": "https://i.imgur.com/DoieYe2.jpg",
   "keywords": ["discord", "discordjs", "typescript", "music", "bot"]
 }

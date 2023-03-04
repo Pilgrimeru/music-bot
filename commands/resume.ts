@@ -16,7 +16,7 @@ export default {
 
     if (queue.player.unpause()) {
       message.reply(i18n.__mf("resume.resultNotPlaying"))
-      .then(msg => purning(msg));
+        .then(msg => purning(msg));
     }
 
     message.reply(i18n.__("resume.errorPlaying")).then(msg => purning(msg));

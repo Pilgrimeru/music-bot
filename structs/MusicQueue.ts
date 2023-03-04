@@ -50,7 +50,7 @@ export class MusicQueue {
     Object.assign(this, options);
     this.textChannel = options.message.channel as TextChannel;
     this.player = createAudioPlayer({
-      behaviors: { 
+      behaviors: {
         maxMissedFrames: 45,
         noSubscriber: NoSubscriberBehavior.Play
       }
@@ -122,7 +122,7 @@ export class MusicQueue {
     if (this.waitTimeout !== null) {
       clearTimeout(this.waitTimeout);
       this.waitTimeout = null;
-    } 
+    }
     this.songs = this.songs.concat(songs);
     this.processQueue();
   }
@@ -133,7 +133,7 @@ export class MusicQueue {
     this.player.stop();
     this.subscription?.unsubscribe();
     bot.queues.delete(this.message.guild!.id);
-    
+
     this.waitTimeout = setTimeout(() => {
       if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
 
@@ -212,13 +212,13 @@ export class MusicQueue {
 
     const collector = NowPlayingMsg.createMessageComponentCollector();
     this.NowPlayingCollector = collector;
-    
+
     collector.on("collect", async (b) => {
       let interactUser = await this.textChannel.guild.members.fetch(b.user);
       let permission = this.textChannel.permissionsFor(interactUser).has(PermissionsBitField.Flags.SendMessages, true);
 
-      if (canModifyQueue(interactUser)){
-          if (b.customId === "stop" && permission) {
+      if (canModifyQueue(interactUser)) {
+        if (b.customId === "stop" && permission) {
           this.stop();
           this.textChannel.send(i18n.__("stop.result")).then(msg => purning(msg));
           collector.stop();
