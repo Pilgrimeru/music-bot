@@ -52,7 +52,7 @@ export class MusicQueue {
     this.player = createAudioPlayer({
       behaviors: {
         maxMissedFrames: 45,
-        noSubscriber: NoSubscriberBehavior.Play
+        noSubscriber: NoSubscriberBehavior.Pause
       }
     });
     this.subscription = this.connection.subscribe(this.player);
@@ -80,6 +80,11 @@ export class MusicQueue {
 
     this.player.on(AudioPlayerStatus.Idle, () => {
       this.skip();
+    });
+
+    this.player.on(AudioPlayerStatus.AutoPaused, () => {
+      this.connection.configureNetworking();
+      this.player.unpause();
     });
 
     this.player.on("error", (error) => {
