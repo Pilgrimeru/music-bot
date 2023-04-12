@@ -41,7 +41,7 @@ export class MusicQueue {
 
   private subscription: PlayerSubscription | undefined;
   private waitTimeout: NodeJS.Timeout | null;
-  private NowPlayingCollector: any;
+  private nowPlayingCollector: any;
 
   public constructor(options: QueueOptions) {
     Object.assign(this, options);
@@ -95,7 +95,7 @@ export class MusicQueue {
   }
 
   private skip() {
-    this.NowPlayingCollector?.stop();
+    this.nowPlayingCollector?.stop();
 
     if (this.loop && this.songs.length) {
       this.enqueue(this.songs.shift()!);
@@ -205,7 +205,7 @@ export class MusicQueue {
     });
 
     const collector = NowPlayingMsg.createMessageComponentCollector();
-    this.NowPlayingCollector = collector;
+    this.nowPlayingCollector = collector;
 
     collector.on("collect", async (b) => {
       let interactUser = await this.textChannel.guild.members.fetch(b.user);
@@ -239,7 +239,9 @@ export class MusicQueue {
     })
     collector.on("end", () => {
       (collector.options.message as Message<boolean>).delete().catch(() => null);
-      this.NowPlayingCollector = null;
+      if (collector == this.nowPlayingCollector) {
+        this.nowPlayingCollector = null;
+      }
     });
   }
 }
