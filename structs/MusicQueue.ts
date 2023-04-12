@@ -5,10 +5,9 @@ import {
   createAudioPlayer,
   NoSubscriberBehavior,
   VoiceConnection,
-  VoiceConnectionDisconnectReason,
-  VoiceConnectionState,
   VoiceConnectionStatus,
   PlayerSubscription,
+  entersState,
 } from "@discordjs/voice";
 import {
   Message,
@@ -26,8 +25,6 @@ import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
 import { canModifyQueue } from "../utils/queue";
 import { Song } from "./Song";
-
-const wait = promisify(setTimeout);
 
 export class MusicQueue {
 
@@ -57,24 +54,14 @@ export class MusicQueue {
     });
     this.subscription = this.connection.subscribe(this.player);
 
-    this.connection.on("stateChange", async (oldState: VoiceConnectionState, newState: VoiceConnectionState) => {
-      if (oldState.status === VoiceConnectionStatus.Ready && newState.status === VoiceConnectionStatus.Connecting) {
-        this.connection.configureNetworking();
-      }
-
-      if (newState.status === VoiceConnectionStatus.Disconnected &&
-        oldState.status !== VoiceConnectionStatus.Disconnected) {
-        if (
-          newState.reason === VoiceConnectionDisconnectReason.WebSocketClose &&
-          this.songs.length
-        ) {
-          if (this.connection.rejoinAttempts < 5) {
-            await wait((this.connection.rejoinAttempts + 1) * 3_000);
-            this.connection.rejoin();
-          } else {
-            this.stop();
-          }
-        }
+    this.connection.on(VoiceConnectionStatus.Disconnected, async () => {
+      try {
+        await Promise.race([
+          entersState(this.connection, VoiceConnectionStatus.Signalling, 5_000),
+          entersState(this.connection, VoiceConnectionStatus.Connecting, 5_000),
+        ]);
+      } catch (error) {
+        this.connection.destroy();
       }
     });
 
@@ -83,8 +70,9 @@ export class MusicQueue {
     });
 
     this.player.on(AudioPlayerStatus.AutoPaused, () => {
-      this.connection.configureNetworking();
-      this.player.unpause();
+      this.subscription = this.connection?.subscribe(this.player);
+      if (this.subscription) 
+        this.subscription.player.on('error', console.error);
     });
 
     this.player.on("error", (error) => {
@@ -166,6 +154,7 @@ export class MusicQueue {
       this.sendPlayingMessage(this.resource);
     } catch (error) {
       console.error(error);
+      this.skip()
     }
   }
 
@@ -249,7 +238,7 @@ export class MusicQueue {
       await b.deferUpdate();
     })
     collector.on("end", () => {
-      NowPlayingMsg.delete().catch(() => null);
+      (collector.options.message as Message<boolean>).delete().catch(() => null);
       this.NowPlayingCollector = null;
     });
   }
