@@ -17,7 +17,6 @@ import {
   VoiceState,
 } from "discord.js";
 import console from "node:console";
-import { promisify } from "node:util";
 import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
 import { config } from "../utils/config";
@@ -61,7 +60,11 @@ export class MusicQueue {
           entersState(this.connection, VoiceConnectionStatus.Connecting, 5_000),
         ]);
       } catch (error) {
-        this.connection.destroy();
+        if (this.resource || this.songs) {
+          this.stop();
+        } else {
+          this.connection.destroy();
+        }
       }
     });
 
@@ -121,9 +124,11 @@ export class MusicQueue {
   }
 
   public stop() {
-    this.songs = [];
+    if (!this.resource && !this.songs && !this.loop) return;
+    this.songs.length = 0;
     this.loop = false;
     this.player.stop();
+    this.nowPlayingCollector?.stop();
     this.subscription?.unsubscribe();
     bot.queues.delete(this.message.guild!.id);
 
@@ -161,7 +166,6 @@ export class MusicQueue {
   private async sendPlayingMessage(resource: AudioResource) {
     const song = (resource as AudioResource<Song>).metadata;
 
-    let NowPlayingMsg: Message;
 
     const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
       new ButtonBuilder()
@@ -190,7 +194,7 @@ export class MusicQueue {
       }
     }
 
-    NowPlayingMsg = await this.textChannel.send({
+    let nowPlayingMsg = await this.textChannel.send({
       embeds: [
         {
           description: `${i18n.__mf("play.startedPlaying")}\n\n[${song.title
@@ -204,7 +208,7 @@ export class MusicQueue {
       components: [row],
     });
 
-    const collector = NowPlayingMsg.createMessageComponentCollector();
+    const collector = nowPlayingMsg.createMessageComponentCollector({time: 3600000});
     this.nowPlayingCollector = collector;
 
     collector.on("collect", async (b) => {
@@ -215,12 +219,9 @@ export class MusicQueue {
         if (b.customId === "stop" && permission) {
           this.stop();
           this.textChannel.send(i18n.__("stop.result")).then(msg => purning(msg));
-          collector.stop();
         }
         if (b.customId === "skip" && permission) {
           this.player.stop(true);
-          this.textChannel.send(i18n.__mf("skip.result")).then(msg => purning(msg));
-          collector.stop();
         }
         if (b.customId === "pause" && permission) {
           if (this.player.state.status == AudioPlayerStatus.Playing) {
