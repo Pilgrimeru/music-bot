@@ -29,9 +29,10 @@ export class Bot {
 
     this.client.on("ready", () => {
       console.log(`${this.client.user!.username} ready!`);
+      client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: ActivityType.Listening });
       setInterval(() => {
         client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: ActivityType.Listening });
-      }, 2 * 3600 * 1000);
+      }, 1 * 3600 * 1000);
       
     });
 
