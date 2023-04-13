@@ -208,7 +208,7 @@ export class MusicQueue {
       components: [row],
     });
 
-    const collector = nowPlayingMsg.createMessageComponentCollector({time: 3600000});
+    const collector = nowPlayingMsg.createMessageComponentCollector({time: 12 * 3600 * 1000});
     this.nowPlayingCollector = collector;
 
     collector.on("collect", async (b) => {
