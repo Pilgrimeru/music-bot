@@ -4,7 +4,7 @@ import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
-import { sp_validate, yt_validate } from "play-dl";
+import { so_validate, sp_validate, yt_validate } from "play-dl";
 import { purning } from "../utils/pruning";
 import { parse, Track } from 'spotify-uri';
 
@@ -37,7 +37,7 @@ export default {
     const loadingReply = await message.reply(i18n.__mf("common.loading"));
 
     // Start the playlist if playlist url was provided
-    if (yt_validate(url) === "playlist" || sp_validate(url) === "playlist" || sp_validate(url) === "album") {
+    if (yt_validate(url) === "playlist" || sp_validate(url) === "playlist" || sp_validate(url) === "album" || await so_validate(url) === "playlist") {
       await loadingReply.delete();
       return bot.commands.get("playlist")!.execute(message, args);
     }

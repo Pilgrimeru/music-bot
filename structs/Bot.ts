@@ -1,6 +1,7 @@
 import { Client, Collection, Snowflake, ActivityType } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
+import { getFreeClientID, setToken } from "play-dl";
 import { Command } from "../interfaces/Command";
 import { checkPermissions, PermissionResult } from "../utils/checkPermissions";
 import { config } from "../utils/config";
@@ -33,7 +34,7 @@ export class Bot {
       setInterval(() => {
         client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: ActivityType.Listening });
       }, 1 * 3600 * 1000);
-      
+
     });
 
     this.client.on("warn", (info) => console.log(info));
@@ -41,7 +42,10 @@ export class Bot {
 
     this.importCommands();
     this.onMessageCreate();
+    this.soundcloudApiConnect();
   }
+
+
 
   public async spotifyApiConnect() {
     if (this.spotifyExpiration < Date.now()) {
@@ -49,6 +53,14 @@ export class Bot {
       this.spotify.setAccessToken(data.body['access_token']);
       this.spotifyExpiration = (Date.now() + data.body['expires_in'] * 1000);
     }
+  }
+
+  public async soundcloudApiConnect() {
+    getFreeClientID().then((clientID) => setToken({
+      soundcloud: {
+        client_id: clientID
+      }
+    }))
   }
 
   private async importCommands() {

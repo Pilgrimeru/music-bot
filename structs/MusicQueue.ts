@@ -74,7 +74,7 @@ export class MusicQueue {
 
     this.player.on(AudioPlayerStatus.AutoPaused, () => {
       this.subscription = this.connection?.subscribe(this.player);
-      if (this.subscription) 
+      if (this.subscription)
         this.subscription.player.on('error', console.error);
     });
 
@@ -194,11 +194,12 @@ export class MusicQueue {
       }
     }
 
-    let nowPlayingMsg = await this.textChannel.send({
+    const nowPlayingMsg = await this.textChannel.send({
       embeds: [
         {
-          description: `${i18n.__mf("play.startedPlaying")}\n\n[${song.title
-            }](${song.url})\n${i18n.__mf("play.duration", " ")}\`${time}\``,
+          description: `${i18n.__mf("play.startedPlaying")}\n
+          [${song.title}](${song.url})
+          ${i18n.__mf("play.duration", " ")}\`${time}\``,
           thumbnail: {
             url: `https://i.ytimg.com/vi/${song.id}/hqdefault.jpg`,
           },
@@ -208,7 +209,7 @@ export class MusicQueue {
       components: [row],
     });
 
-    const collector = nowPlayingMsg.createMessageComponentCollector({time: 12 * 3600 * 1000});
+    const collector = nowPlayingMsg.createMessageComponentCollector({ time: 12 * 3600 * 1000 });
     this.nowPlayingCollector = collector;
 
     collector.on("collect", async (b) => {

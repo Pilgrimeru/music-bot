@@ -2,12 +2,12 @@ import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice
 import { Message, PermissionsBitField } from "discord.js";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
-import { Playlist } from "../structs/Playlist";
+import { YoutubePlaylist } from "../structs/YoutubePlaylist";
 import { SpotifyPlaylist } from "../structs/SpotifyPlaylist";
 import { i18n } from "../utils/i18n";
-import { sp_validate } from "play-dl";
+import { so_validate, sp_validate } from "play-dl";
 import { purning } from "../utils/pruning";
-import { parse, Playlist as ParsedPlaylist } from 'spotify-uri';
+import { SoundcloudPlaylist } from "../structs/SoundcloudPlaylist";
 
 export default {
   name: "playlist",
@@ -34,23 +34,16 @@ export default {
         .then(msg => purning(msg));
 
     let playlist;
-    const url = args[0];
+    const url: string = args[0];
 
     try {
       if (sp_validate(url) === "playlist" || sp_validate(url) === "album") {
-        await bot.spotifyApiConnect();
-        const spotifyId = (parse(url) as ParsedPlaylist).id;
-
-        if (sp_validate(url) === "playlist") {
-          const result = await bot.spotify.getPlaylistTracks(spotifyId);
-          playlist = await SpotifyPlaylist.from(result.body.items);
-        } else {
-          const result = await bot.spotify.getAlbumTracks(spotifyId);
-          playlist = await SpotifyPlaylist.from(result.body.items);
-        }
+        playlist = await SpotifyPlaylist.from(url);
+      } else if (await so_validate(url) === "playlist") {
+        playlist = await SoundcloudPlaylist.from(url);
       } else {
         var search = args.join(" ");
-        playlist = await Playlist.from(url, search);
+        playlist = await YoutubePlaylist.from(url, search);
       }
     } catch (error) {
       console.error(error);

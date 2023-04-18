@@ -1,6 +1,6 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice";
 import youtube from "youtube-sr";
-import { stream, yt_validate } from "play-dl";
+import { stream, yt_validate, soundcloud, so_validate } from "play-dl";
 
 export interface SongData {
   url: string;
@@ -24,7 +24,6 @@ export class Song {
 
   public static async from(url: string = "", search: string = "") {
     let songInfo;
-
     if (url.startsWith("https") && yt_validate(url) === "video") {
       songInfo = await youtube.getVideo(url);
 
@@ -34,6 +33,16 @@ export class Song {
         duration: songInfo.duration,
         id: songInfo.id,
       });
+    } else if (url.startsWith("https") && await so_validate(url) == "track") {
+      songInfo = await soundcloud(url);
+
+      return new this({
+        url: songInfo.url,
+        title: songInfo.name,
+        duration: songInfo.durationInMs,
+        id: undefined,
+      });
+
     } else {
       songInfo = await youtube.searchOne(search);
 
@@ -47,10 +56,9 @@ export class Song {
   }
 
   public async makeResource(): Promise<AudioResource<Song> | void> {
-    let s;
-    if (this.url.startsWith("https") && yt_validate(this.url) === "video") {
+    if (this.url.startsWith("https") && (yt_validate(this.url) === "video" || await so_validate(this.url) == "track")) {
       try {
-        s = await stream(this.url, {
+        let s = await stream(this.url, {
           discordPlayerCompatibility: true,
           htmldata: false,
           precache: 30,
