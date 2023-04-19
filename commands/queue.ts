@@ -9,12 +9,16 @@ export default {
   cooldown: 5,
   aliases: ["q"],
   description: i18n.__("queue.description"),
-  async execute(message: Message) {
+  async execute(message: Message, args: Array<any>) {
     const queue = bot.queues.get(message.guild!.id);
     if (!queue || !queue.songs.length) return message.reply(i18n.__("queue.errorNotQueue")).then(msg => purning(msg));
 
-    let currentPage = 0;
     const embeds = generateQueueEmbed(message, queue.songs);
+    
+    let currentPage = 0;
+    if (!isNaN(args[0]) && args[0] > 0 && args[0] <= embeds.length) {
+      currentPage = args[0] - 1;
+    }
 
     let queueEmbed: Message;
 
@@ -25,7 +29,11 @@ export default {
 
         new ButtonBuilder().setCustomId("right").setEmoji('➡️').setStyle(ButtonStyle.Secondary),
 
+        new ButtonBuilder().setCustomId("close").setEmoji('❌').setStyle(ButtonStyle.Secondary),
+
       );
+      
+      
 
       queueEmbed = await message.reply({
         content: `**${i18n.__mf("queue.currentPage")} ${currentPage + 1}/${embeds.length}**`,
@@ -44,13 +52,12 @@ export default {
     collector.on('collect', async (q) => {
       if (q.customId === "left") {
         if (currentPage !== 0) {
-          --currentPage;
+          currentPage--;
           queueEmbed.edit({
             content: `**${i18n.__mf("queue.currentPage")} ${currentPage + 1}/${embeds.length}**`,
             embeds: [embeds[currentPage]]
           });
         }
-        await q.deferUpdate();
       }
       if (q.customId === "right") {
         if (currentPage < embeds.length - 1) {
@@ -60,8 +67,12 @@ export default {
             embeds: [embeds[currentPage]]
           });
         }
-        await q.deferUpdate();
       }
+      if (q.customId === "close") {
+        collector.stop();
+      }
+
+      await q.deferUpdate();
     });
     collector.on("end", () => {
       queueEmbed.delete().catch(() => null);

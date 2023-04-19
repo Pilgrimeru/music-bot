@@ -26,12 +26,12 @@ export class SpotifyPlaylist {
     await bot.spotifyApiConnect();
     const spotifyId = (parse(url) as ParsedPlaylist).id;
 
-    let infos = [];
+    let infos: any[] = [];
     const type = sp_validate(url);
 
     if (type === "playlist") {
       const result = await bot.spotify.getPlaylistTracks(spotifyId);
-      const tracks = result.body.items
+      const tracks = result.body.items;
       infos = tracks.map(async (item: any) => {
         let songInfo = await youtube.searchOne(item.track.artists[0].name + " " + item.track.name);
         return songInfo;

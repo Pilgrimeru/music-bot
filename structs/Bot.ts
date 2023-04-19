@@ -8,7 +8,7 @@ import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
 import { MissingPermissionsException } from "../utils/MissingPermissionsException";
 import { MusicQueue } from "./MusicQueue";
-const Spotify = require('spotify-web-api-node');
+import Spotify from "spotify-web-api-node";
 
 
 

@@ -37,7 +37,11 @@ export default {
     const loadingReply = await message.reply(i18n.__mf("common.loading"));
 
     // Start the playlist if playlist url was provided
-    if (yt_validate(url) === "playlist" || sp_validate(url) === "playlist" || sp_validate(url) === "album" || await so_validate(url) === "playlist") {
+    if (
+      url.startsWith('https') && yt_validate(url) === "playlist" ||
+      sp_validate(url) === "playlist" || sp_validate(url) === "album" ||
+      await so_validate(url) === "playlist"
+    ) {
       await loadingReply.delete();
       return bot.commands.get("playlist")!.execute(message, args);
     }

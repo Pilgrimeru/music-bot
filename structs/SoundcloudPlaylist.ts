@@ -23,7 +23,7 @@ export class SoundcloudPlaylist {
     let playlist = await soundcloud(url);
     let tracks: SoundCloudTrack[] = [];
     if (playlist.type == "playlist") {
-      tracks = await (playlist as SoundCloudPlaylist).all_tracks()
+      tracks = await (playlist as SoundCloudPlaylist).all_tracks();
     }
     return new this(tracks);
   }

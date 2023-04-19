@@ -159,7 +159,7 @@ export class MusicQueue {
       this.sendPlayingMessage(this.resource);
     } catch (error) {
       console.error(error);
-      this.skip()
+      this.skip();
     }
   }
 
@@ -203,8 +203,8 @@ export class MusicQueue {
           thumbnail: {
             url: `https://i.ytimg.com/vi/${song.id}/hqdefault.jpg`,
           },
-          color: 0x44b868,
-        },
+          color: 0x69adc7
+        }
       ],
       components: [row],
     });

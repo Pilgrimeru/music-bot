@@ -26,12 +26,12 @@ export class YoutubePlaylist {
     let playlist;
 
     if (urlValid) {
-      playlist = await youtube.getPlaylist(url, { fetchAll: true });
+      playlist = await youtube.getPlaylist(url, { fetchAll: true, limit: config.MAX_PLAYLIST_SIZE });
     } else {
       const result = await youtube.searchOne(search, "playlist");
-      playlist = await youtube.getPlaylist(result.url!, { fetchAll: true });
+      playlist = await youtube.getPlaylist(result.url!, { fetchAll: true, limit: config.MAX_PLAYLIST_SIZE });
     }
-
+    
     return new this(playlist);
   }
 }
