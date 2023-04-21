@@ -20,19 +20,19 @@ export default {
   async execute(message: Message, args: string[]) {
     const { channel } = message.member!.voice;
 
-    if (!channel) return message.reply(i18n.__("play.errorNotChannel")).then(msg => purning(msg));
+    if (!channel) return message.reply(i18n.__("play.errorNotChannel")).then(purning);
 
     const queue = bot.queues.get(message.guild!.id);
 
     if (queue && channel.id !== queue.connection.joinConfig.channelId)
       return message
         .reply(i18n.__mf("play.errorNotInSameChannel", { user: bot.client.user!.username }))
-        .then(msg => purning(msg));
+        .then(purning);
 
-    if (!args.length) return message.reply(i18n.__mf("play.usageReply", { prefix: bot.prefix })).then(msg => purning(msg));
+    if (!args.length) return message.reply(i18n.__mf("play.usageReply", { prefix: bot.prefix })).then(purning);
 
     const url = args[0];
-    var search = args.join(" ");
+    let search = args.join(" ");
 
     const loadingReply = await message.reply(i18n.__mf("common.loading"));
 
@@ -42,7 +42,7 @@ export default {
       sp_validate(url) === "playlist" || sp_validate(url) === "album" ||
       await so_validate(url) === "playlist"
     ) {
-      await loadingReply.delete();
+      await loadingReply.delete().catch(() => null);;
       return bot.commands.get("playlist")!.execute(message, args);
     }
 
@@ -67,7 +67,7 @@ export default {
       console.error(error);
       return message.reply(i18n.__("common.errorCommand")).catch(console.error);
     } finally {
-      await loadingReply.delete();
+      await loadingReply.delete().catch(() => null);
     }
 
     if (queue) {
@@ -75,7 +75,7 @@ export default {
 
       return message
         .reply(i18n.__mf("play.queueAdded", { title: song.title }))
-        .then(msg => setTimeout(() => msg.delete(), 10000))
+        .then(purning)
         .catch(console.error);
     }
 

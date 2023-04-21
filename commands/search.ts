@@ -1,8 +1,9 @@
-import { Message, EmbedBuilder, TextChannel } from "discord.js";
-import youtube from "youtube-sr";
+import { Message, TextChannel, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
+import youtube, { Video } from "youtube-sr";
 import { bot } from "../index";
 import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
+import { config } from "../utils/config";
 
 type CustomTextChannel = TextChannel & { activeCollector: boolean };
 
@@ -22,55 +23,52 @@ export default {
 
     const search = args.join(" ");
 
-    let resultsEmbed = new EmbedBuilder()
-      .setTitle(i18n.__("search.resultEmbedTitle"))
-      .setDescription(i18n.__mf("search.resultEmbedDesc", { search: search }))
-      .setColor("#F8AA2A");
+      let results: Video[] = [];
 
-    try {
-      const results = await youtube.search(search, { limit: 10, type: "video" });
-
-      results.map((video, index) =>
-
-        resultsEmbed.addFields(
-          {
-            name: `https://youtube.com/watch?v=${video.id}`,
-            value: `${index + 1}. ${video.title}`,
-            inline: true
-          }
-        )
+      try {
+        results = await youtube.search(search, { limit: 10, type: "video" });
+      } catch (error: any) {
+        console.error(error);
+        return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
+      }
+  
+      if (!results) return;
+  
+      const options = results
+      .filter((video) => video.title != undefined && video.title != "Private video" && video.title != "Deleted video")
+      .map((video) => {
+        return {
+          label: video.title!,
+          value: video.url
+        };
+      });
+  
+      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+        new StringSelectMenuBuilder()
+          .setCustomId("search-select")
+          .setPlaceholder(i18n.__("search.menuNothing"))
+          .setMinValues(0)
+          .setMaxValues(1)
+          .addOptions(options)
       );
-
-      let resultsMessage = await (message.channel as TextChannel).send({ embeds: [resultsEmbed] });
-
-      function filter(msg: Message) {
-        const pattern = /^[1-9][0]?(\s*,\s*[1-9][0]?)*$/;
-        return pattern.test(msg.content);
-      }
-
-      (message.channel as CustomTextChannel).activeCollector = true;
-
-      const response = await (message.channel as TextChannel).awaitMessages({ filter, max: 1, time: 30000, errors: ["time"] });
-      const reply = response.first()!.content;
-
-      if (reply.includes(",")) {
-        let songs = reply.split(",").map((str: string) => str.trim());
-
-        for (let song of songs) {
-          await bot.commands.get("play")!.execute(message, [resultsEmbed.data.fields![parseInt(song) - 1].name]);
-        }
-      } else {
-        const choice: any = resultsEmbed.data.fields![parseInt(response.first()?.toString()!) - 1].name;
-        bot.commands.get("play")!.execute(message, [choice]);
-      }
-
-      (message.channel as CustomTextChannel).activeCollector = false;
-      resultsMessage.delete().catch(console.error);
-      response.first()!.delete().catch(console.error);
-    } catch (error: any) {
-      console.error(error);
-      (message.channel as CustomTextChannel).activeCollector = false;
-      message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
+  
+      const resultsMessage = await message.reply({
+        content: i18n.__("search.resultEmbedTitle"),
+        components: [row]
+      });
+  
+      resultsMessage
+        .awaitMessageComponent({
+          time: 30000
+        })
+        .then((selectInteraction) => {
+          if ((selectInteraction instanceof StringSelectMenuInteraction)) {
+            selectInteraction.update({content : i18n.__("search.finished"), components: []}).catch(console.error);
+            bot.commands.get("play")!.execute(message, [selectInteraction.values[0]]);
+          }
+          config.PRUNING && resultsMessage.delete().catch(() => null);
+        })
+        .catch(() => resultsMessage.delete().catch(() => null));
+      
     }
-  }
-};
+  };

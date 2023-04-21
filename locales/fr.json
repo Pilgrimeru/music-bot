@@ -27,7 +27,7 @@
   "nowplaying": {
     "description": "Afficher la chanson en cours de lecture.",
     "errorNotQueue": "Il n'y a rien à jouer.",
-    "embedTitle": "Lecture en cours",
+    "embedTitle": "**Lecture en cours** ♪",
     "live": " ◉ DIRECT",
     "timeRemaining": "Temps restant: {time}"
   },
@@ -107,10 +107,10 @@
   "search": {
     "description": "Recherchez et sélectionnez des vidéos à écouter.",
     "usageReply": "Utilisation: {prefix}{name} <Nom de la vidéo>",
-    "errorAlreadyCollector": "Un collecteur de messages est déjà actif dans ce salon.",
     "errorNotChannel": "Vous devez d'abord rejoindre un salon vocal !",
-    "resultEmbedTitle": "**Répondez avec le numéro de la chanson que vous souhaitez écouter.**",
-    "resultEmbedDesc": "Résultat pour: {search}"
+    "menuNothing": "Rien de sélectionné",
+    "resultEmbedTitle": "Choisissez les morceaux à jouer.",
+    "finished": "Recherche terminée."
   },
   "shuffle": {
     "description": "Mélange la file d'attentre.",

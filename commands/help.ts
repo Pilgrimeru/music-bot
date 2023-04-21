@@ -13,7 +13,7 @@ export default {
     let helpEmbed = new EmbedBuilder()
       .setTitle(i18n.__mf("help.embedTitle", { botname: message.client.user!.username }))
       .setDescription(i18n.__("help.embedDescription"))
-      .setColor("#F8AA2A");
+      .setColor("#69adc7");
 
     commands.forEach((cmd) => {
       helpEmbed.addFields(

@@ -18,6 +18,6 @@ export default {
 
     return message
       .reply(i18n.__mf("loop.result", { loop: queue.loop ? i18n.__("common.on") : i18n.__("common.off") }))
-      .then(msg => purning(msg));
+      .then(purning);
   }
 };

@@ -9,6 +9,6 @@ export default {
   execute(message: Message) {
     message
       .reply(i18n.__mf("ping.result", { ping: Math.round(message.client.ws.ping) }))
-      .then(msg => purning(msg));
+      .then(purning);
   }
 };

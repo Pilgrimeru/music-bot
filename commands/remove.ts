@@ -14,11 +14,11 @@ export default {
   execute(message: Message, args: any[]) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("remove.errorNotQueue")).then(msg => purning(msg));
+    if (!queue) return message.reply(i18n.__("remove.errorNotQueue")).then(purning);
 
-    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(msg => purning(msg));
+    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(purning);
 
-    if (!args.length) return message.reply(i18n.__mf("remove.usageReply", { prefix: bot.prefix })).then(msg => purning(msg));
+    if (!args.length) return message.reply(i18n.__mf("remove.usageReply", { prefix: bot.prefix })).then(purning);
 
     const removeArgs = args.join("");
 
@@ -36,15 +36,15 @@ export default {
         i18n.__mf("remove.result", {
           title: removed.map((song) => song.title).join("\n")
         })
-      ).then(msg => purning(msg));
+      ).then(purning);
     } else if (!isNaN(args[0]) && args[0] >= 1 && args[0] < queue.songs.length) {
       return queue.textChannel.send(
         i18n.__mf("remove.result", {
           title: queue.songs.splice(args[0], 1)[0].title
         })
-      ).then(msg => purning(msg));
+      ).then(purning);
     } else {
-      return message.reply(i18n.__mf("remove.usageReply", { prefix: bot.prefix })).then(msg => purning(msg));
+      return message.reply(i18n.__mf("remove.usageReply", { prefix: bot.prefix })).then(purning);
     }
   }
 };

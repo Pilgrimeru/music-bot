@@ -3,6 +3,7 @@ import { splitBar } from "string-progressbar";
 import { i18n } from "../utils/i18n";
 import { bot } from "../index";
 import { purning } from "../utils/pruning";
+import { formatTime } from "../utils/time";
 
 export default {
   name: "nowplaying",
@@ -20,29 +21,31 @@ export default {
     const left = song.duration - seek;
 
     let nowPlaying = new EmbedBuilder()
-      .setTitle(i18n.__("nowplaying.embedTitle"))
-      .setDescription(`${song.title}\n${song.url}`)
-      .setColor("#F8AA2A");
+      .setTitle(`${queue.player.state.status === "playing" ? "▶" : "⏸"} ${i18n.__("nowplaying.embedTitle")}`)
+      .setDescription(`[${song.title}](${song.url})`)
+      .setColor("#69adc7")
+      .setThumbnail(`https://img.youtube.com/vi/${song.id}/maxresdefault.jpg`)
 
-    if (song.duration > 0) {
+    
       nowPlaying.addFields(
         {
           name: "\u200b",
-          value: new Date(seek).toISOString().slice(11, 19) +
-            "[" +
-            splitBar(song.duration == 0 ? seek : song.duration, seek, 20)[0] +
-            "]" +
-            (song.duration == 0 ? i18n.__mf("nowplaying.live") : new Date(song.duration).toISOString().slice(11, 19)),
+          value: formatTime(seek) +
+            " [" +
+            splitBar((song.duration == 0 ? seek : song.duration), seek, 15)[0] +
+            "] " +
+            (song.duration == 0 ? i18n.__mf("nowplaying.live") : formatTime(song.duration)),
           inline: false
         }
       );
 
-      nowPlaying.setFooter({
-        text: i18n.__mf("nowplaying.timeRemaining", {
-          time: new Date(left).toISOString().slice(11, 19)
-        })
-      });
-    }
+      if (song.duration > 0) {
+        nowPlaying.setFooter({
+          text: i18n.__mf("nowplaying.timeRemaining", {
+            time: formatTime(left)
+          })
+        });
+      }
 
     return message.reply({ embeds: [nowPlaying] }).then(msg => purning(msg, true));
   }

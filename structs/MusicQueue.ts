@@ -22,6 +22,7 @@ import { QueueOptions } from "../interfaces/QueueOptions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
+import { formatTime } from "../utils/time";
 import { canModifyQueue } from "../utils/queue";
 import { Song } from "./Song";
 
@@ -55,6 +56,7 @@ export class MusicQueue {
 
     this.connection.on(VoiceConnectionStatus.Disconnected, async () => {
       try {
+        this.connection.rejoin();
         await Promise.race([
           entersState(this.connection, VoiceConnectionStatus.Signalling, 5_000),
           entersState(this.connection, VoiceConnectionStatus.Connecting, 5_000),
@@ -108,7 +110,7 @@ export class MusicQueue {
       if (this.songs.length) {
         this.processQueue();
       } else {
-        this.textChannel.send(i18n.__("play.queueEnded")).then(msg => purning(msg));
+        this.textChannel.send(i18n.__("play.queueEnded")).then(purning);
         this.stop();
       }
     }
@@ -138,7 +140,7 @@ export class MusicQueue {
         const queue = bot.queues.get(this.message.guild!.id);
         if (!queue) {
           this.connection.destroy();
-          this.textChannel.send(i18n.__("play.leaveChannel")).then(msg => purning(msg));
+          this.textChannel.send(i18n.__("play.leaveChannel")).then(purning);
         }
       }
     }, config.STAY_TIME * 1000);
@@ -184,24 +186,21 @@ export class MusicQueue {
         .setStyle(ButtonStyle.Secondary)
     );
 
-    let time = i18n.__mf("nowplaying.live");
-    if (song.duration > 0) {
-      if (song.duration / 360000 >= 1) {
-        time = new Date(song.duration).toISOString().slice(11, 19);
-
-      } else {
-        time = new Date(song.duration).toISOString().slice(14, 19);
-      }
+    let time : string;
+    if (song.duration == 0) {
+      time = i18n.__mf("nowplaying.live");
+    } else {
+      time = formatTime(song.duration);
     }
 
     const nowPlayingMsg = await this.textChannel.send({
       embeds: [
         {
-          description: `${i18n.__mf("play.startedPlaying")}\n
-          [${song.title}](${song.url})
+          title : i18n.__mf("play.startedPlaying"),
+          description: `[${song.title}](${song.url})
           ${i18n.__mf("play.duration", " ")}\`${time}\``,
           thumbnail: {
-            url: `https://i.ytimg.com/vi/${song.id}/hqdefault.jpg`,
+            url: `https://img.youtube.com/vi/${song.id}/maxresdefault.jpg`,
           },
           color: 0x69adc7
         }
@@ -219,7 +218,7 @@ export class MusicQueue {
       if (canModifyQueue(interactUser)) {
         if (b.customId === "stop" && permission) {
           this.stop();
-          this.textChannel.send(i18n.__("stop.result")).then(msg => purning(msg));
+          this.textChannel.send(i18n.__("stop.result")).then(purning);
         }
         if (b.customId === "skip" && permission) {
           this.player.stop(true);
@@ -227,23 +226,39 @@ export class MusicQueue {
         if (b.customId === "pause" && permission) {
           if (this.player.state.status == AudioPlayerStatus.Playing) {
             this.player.pause();
-            this.textChannel.send(i18n.__mf("pause.result")).then(msg => purning(msg));
+            this.textChannel.send(i18n.__mf("pause.result")).then(purning);
           } else {
             this.player.unpause();
-            this.textChannel.send(i18n.__mf("resume.resultNotPlaying")).then(msg => purning(msg));
+            this.textChannel.send(i18n.__mf("resume.resultNotPlaying")).then(purning);
           }
         }
       } else {
         this.textChannel.send(i18n.__("common.errorNotChannel"))
-          .then(msg => purning(msg));
+          .then(purning);
       }
       await b.deferUpdate();
     })
+    
     collector.on("end", () => {
-      (collector.options.message as Message<boolean>).delete().catch(() => null);
+      const msg = (collector.options.message as Message<boolean>);
+
+      if (config.PRUNING) {
+        msg.delete().catch(() => null);
+      } else {
+        nowPlayingMsg.edit({
+          embeds : [{
+              description: msg.embeds[0].description!,
+              thumbnail : msg.embeds[0].thumbnail!,
+              color: 0x69adc7
+            }],
+          components : []
+        });
+      }
+
       if (collector == this.nowPlayingCollector) {
         this.nowPlayingCollector = null;
       }
     });
+    
   }
 }

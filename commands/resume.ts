@@ -11,14 +11,14 @@ export default {
   execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("resume.errorNotQueue")).then(msg => purning(msg));
-    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(msg => purning(msg));
+    if (!queue) return message.reply(i18n.__("resume.errorNotQueue")).then(purning);
+    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(purning);
 
     if (queue.player.unpause()) {
       message.reply(i18n.__mf("resume.resultNotPlaying"))
-        .then(msg => purning(msg));
+        .then(purning);
     }
 
-    message.reply(i18n.__("resume.errorPlaying")).then(msg => purning(msg));
+    message.reply(i18n.__("resume.errorPlaying")).then(purning);
   }
 };

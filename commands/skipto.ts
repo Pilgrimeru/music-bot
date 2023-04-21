@@ -12,18 +12,18 @@ export default {
     if (!args.length || isNaN(args[0]))
       return message
         .reply(i18n.__mf("skipto.usageReply", { prefix: bot.prefix, name: module.exports.name }))
-        .then(msg => purning(msg));
+        .then(purning);
 
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("skipto.errorNotQueue")).then(msg => purning(msg));
+    if (!queue) return message.reply(i18n.__("skipto.errorNotQueue")).then(purning);
 
     if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
 
     if (args[0] > queue.songs.length)
       return message
         .reply(i18n.__mf("skipto.errorNotValid", { length: queue.songs.length }))
-        .then(msg => purning(msg));
+        .then(purning);
 
     if (queue.loop) {
       for (let i = 0; i < args[0] - 1; i++) {
@@ -37,6 +37,6 @@ export default {
 
     queue.textChannel
       .send(i18n.__mf("skipto.result", { arg: args[0] }))
-      .then(msg => purning(msg));
+      .then(purning);
   }
 };

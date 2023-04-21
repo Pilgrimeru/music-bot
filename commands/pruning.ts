@@ -23,7 +23,7 @@ export default {
       writeFile("./config.json", JSON.stringify(config, null, 2), (err) => {
         if (err) {
           console.log(err);
-          return (message.channel as TextChannel).send(i18n.__("pruning.errorWritingFile")).then(msg => purning(msg));
+          return (message.channel as TextChannel).send(i18n.__("pruning.errorWritingFile")).then(purning);
         }
 
         return (message.channel as TextChannel)
@@ -32,7 +32,7 @@ export default {
               result: config!.PRUNING ? i18n.__("common.enabled") : i18n.__("common.disabled")
             })
           )
-          .then(msg => purning(msg));
+          .then(purning);
       });
     }
   }

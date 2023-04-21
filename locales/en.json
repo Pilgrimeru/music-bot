@@ -27,7 +27,7 @@
   "nowplaying": {
     "description": "Show now playing song",
     "errorNotQueue": "There is nothing playing.",
-    "embedTitle": "Now playing",
+    "embedTitle": "**Now playing** ♪",
     "live": " ◉ LIVE",
     "timeRemaining": "Time Remaining: {time}"
   },
@@ -105,12 +105,12 @@
     "errorPlaying": "The queue is not paused."
   },
   "search": {
-    "description": "Search and select videos to play",
+    "description": "Choose songs to play.",
     "usageReply": "Usage: {prefix}{name} <Video Name>",
-    "errorAlreadyCollector": "A message collector is already active in this channel.",
     "errorNotChannel": "You need to join a voice channel first!",
-    "resultEmbedTitle": "**Reply with the song number you want to play**",
-    "resultEmbedDesc": "Results for: {search}"
+    "menuNothing": "Nothing selected",
+    "resultEmbedTitle": "Choose the songs to play.",
+    "finished": "Search finished."
   },
   "shuffle": {
     "description": "Shuffle queue",

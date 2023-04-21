@@ -11,12 +11,12 @@ export default {
   execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("skip.errorNotQueue")).then(msg => purning(msg));
+    if (!queue) return message.reply(i18n.__("skip.errorNotQueue")).then(purning);
 
     if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
 
     queue.player.stop(true);
 
-    queue.textChannel.send(i18n.__mf("skip.result")).then(msg => purning(msg));
+    queue.textChannel.send(i18n.__mf("skip.result")).then(purning);
   }
 };

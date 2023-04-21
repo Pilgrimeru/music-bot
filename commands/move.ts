@@ -12,12 +12,12 @@ export default {
   execute(message: Message, args: number[]) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("move.errorNotQueue")).then(msg => purning(msg));
+    if (!queue) return message.reply(i18n.__("move.errorNotQueue")).then(purning);
 
     if (!canModifyQueue(message.member!)) return;
 
     if (!args.length || isNaN(args[0]) || args[0] < 1)
-      return message.reply(i18n.__mf("move.usagesReply", { prefix: bot.prefix })).then(msg => purning(msg));
+      return message.reply(i18n.__mf("move.usagesReply", { prefix: bot.prefix })).then(purning);
 
     if (!args[1]) args[1] = 1;
 
@@ -30,6 +30,6 @@ export default {
         title: song.title,
         index: args[1]
       })
-    ).then(msg => purning(msg));
+    ).then(purning);
   }
 };

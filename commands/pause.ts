@@ -10,12 +10,12 @@ export default {
   execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("pause.errorNotQueue")).then(msg => purning(msg));
+    if (!queue) return message.reply(i18n.__("pause.errorNotQueue")).then(purning);
 
-    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(msg => purning(msg));
+    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(purning);
 
     if (queue.player.pause()) {
-      message.reply(i18n.__mf("pause.result")).then(msg => purning(msg));
+      message.reply(i18n.__mf("pause.result")).then(purning);
     }
   }
 };

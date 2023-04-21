@@ -10,9 +10,9 @@ export default {
   execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue) return message.reply(i18n.__("shuffle.errorNotQueue")).then(msg => purning(msg));
+    if (!queue) return message.reply(i18n.__("shuffle.errorNotQueue")).then(purning);
 
-    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(msg => purning(msg));
+    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(purning);
 
     let songs = queue.songs;
 
@@ -23,6 +23,6 @@ export default {
 
     queue.songs = songs;
 
-    queue.textChannel.send(i18n.__mf("shuffle.result")).then(msg => purning(msg));
+    queue.textChannel.send(i18n.__mf("shuffle.result")).then(purning);
   }
 };

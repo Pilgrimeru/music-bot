@@ -24,14 +24,14 @@ export default {
     const queue = bot.queues.get(message.guild!.id);
 
     if (!args.length)
-      return message.reply(i18n.__mf("playlist.usagesReply", { prefix: bot.prefix })).then(msg => purning(msg));
+      return message.reply(i18n.__mf("playlist.usagesReply", { prefix: bot.prefix })).then(purning);
 
-    if (!channel) return message.reply(i18n.__("playlist.errorNotChannel")).then(msg => purning(msg));
+    if (!channel) return message.reply(i18n.__("playlist.errorNotChannel")).then(purning);
 
     if (queue && channel.id !== queue.connection.joinConfig.channelId)
       return message
         .reply(i18n.__mf("play.errorNotInSameChannel", { user: message.client.user!.username }))
-        .then(msg => purning(msg));
+        .then(purning);
 
     let playlist;
     const url: string = args[0];
@@ -47,7 +47,7 @@ export default {
       }
     } catch (error) {
       console.error(error);
-      return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).then(msg => purning(msg));
+      return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).then(purning);
     }
 
     if (queue) {
@@ -70,6 +70,6 @@ export default {
       .reply({
         content: i18n.__mf("playlist.startedPlaylist"),
       })
-      .then(msg => purning(msg));
+      .then(purning);
   }
 };

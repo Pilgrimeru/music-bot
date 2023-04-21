@@ -1,6 +1,7 @@
 import { Message, EmbedBuilder, ButtonStyle, ButtonBuilder, ActionRowBuilder } from "discord.js";
 import { bot } from "../index";
 import { Song } from "../structs/Song";
+import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
 
@@ -11,7 +12,7 @@ export default {
   description: i18n.__("queue.description"),
   async execute(message: Message, args: Array<any>) {
     const queue = bot.queues.get(message.guild!.id);
-    if (!queue || !queue.songs.length) return message.reply(i18n.__("queue.errorNotQueue")).then(msg => purning(msg));
+    if (!queue || !queue.songs.length) return message.reply(i18n.__("queue.errorNotQueue")).then(purning);
 
     const embeds = generateQueueEmbed(message, queue.songs);
     
@@ -32,8 +33,6 @@ export default {
         new ButtonBuilder().setCustomId("close").setEmoji('❌').setStyle(ButtonStyle.Secondary),
 
       );
-      
-      
 
       queueEmbed = await message.reply({
         content: `**${i18n.__mf("queue.currentPage")} ${currentPage + 1}/${embeds.length}**`,
@@ -74,8 +73,17 @@ export default {
 
       await q.deferUpdate();
     });
-    collector.on("end", () => {
-      queueEmbed.delete().catch(() => null);
+    
+    collector.on("end", async () => {
+      if (config.PRUNING) {
+        queueEmbed.delete().catch(() => null);
+      } else {
+        queueEmbed.edit({
+          content: queueEmbed.content,
+          embeds: queueEmbed.embeds,
+          components : []
+        });
+      }
     });
   }
 };
@@ -94,7 +102,7 @@ function generateQueueEmbed(message: Message, songs: Song[]) {
     const embed = new EmbedBuilder()
       .setTitle(i18n.__("queue.embedTitle"))
       .setThumbnail(message.guild?.iconURL()!)
-      .setColor("#F8AA2A")
+      .setColor("#69adc7")
       .setDescription(
         i18n.__mf("queue.embedCurrentSong", { title: songs[0].title, url: songs[0].url, info: info })
       )
