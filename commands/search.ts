@@ -1,14 +1,13 @@
-import { Message, TextChannel, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
+import { Message, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import youtube, { Video } from "youtube-sr";
 import { bot } from "../index";
 import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
 import { config } from "../utils/config";
 
-type CustomTextChannel = TextChannel & { activeCollector: boolean };
-
 export default {
   name: "search",
+  aliases: ["sh"],
   description: i18n.__("search.description"),
   async execute(message: Message, args: any[]) {
     if (!args.length)
@@ -16,23 +15,22 @@ export default {
         .reply(i18n.__mf("search.usageReply", { prefix: bot.prefix, name: module.exports.name }))
         .then(msg => purning(msg));
 
-    if ((message.channel as CustomTextChannel).activeCollector)
-      return message.reply(i18n.__("search.errorAlreadyCollector"));
-
     if (!message.member?.voice.channel) return message.reply(i18n.__("search.errorNotChannel")).then(msg => purning(msg));
 
     const search = args.join(" ");
 
       let results: Video[] = [];
 
+      const loadingReply = await message.reply(i18n.__mf("common.loading"));
+
       try {
         results = await youtube.search(search, { limit: 10, type: "video" });
       } catch (error: any) {
         console.error(error);
         return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
+      } finally {
+        loadingReply.delete().catch(() => null);
       }
-  
-      if (!results) return;
   
       const options = results
       .filter((video) => video.title != undefined && video.title != "Private video" && video.title != "Deleted video")
@@ -42,6 +40,9 @@ export default {
           value: video.url
         };
       });
+      
+      if (options.length === 0)
+        return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
   
       const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
         new StringSelectMenuBuilder()
@@ -61,9 +62,9 @@ export default {
         .awaitMessageComponent({
           time: 30000
         })
-        .then((selectInteraction) => {
+        .then(async (selectInteraction) => {
           if ((selectInteraction instanceof StringSelectMenuInteraction)) {
-            selectInteraction.update({content : i18n.__("search.finished"), components: []}).catch(console.error);
+            await selectInteraction.update({content : i18n.__("search.finished"), components: []}).catch(console.error);
             bot.commands.get("play")!.execute(message, [selectInteraction.values[0]]);
           }
           config.PRUNING && resultsMessage.delete().catch(() => null);

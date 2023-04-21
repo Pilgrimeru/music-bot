@@ -65,7 +65,7 @@ export default {
       song = await Song.from(url, search);
     } catch (error) {
       console.error(error);
-      return message.reply(i18n.__("common.errorCommand")).catch(console.error);
+      return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
     } finally {
       await loadingReply.delete().catch(() => null);
     }
