@@ -90,12 +90,10 @@ export default {
 
 function generateQueueEmbed(message: Message, songs: Song[]) {
   let embeds: EmbedBuilder[] = [];
-  let k = 11;
 
-  for (let i = 0; i < songs.length; i += 10) {
-    const current = songs.slice(i + 1, k);
-    let j = i + 1;
-    k += 10;
+  for (let i = 1; i < songs.length; i += 10) {
+    const current = songs.slice(i, i + 10);
+    let j = i;
 
     const info = current.map((track) => `${j++} - [${track.title}](${track.url})`).join("\n");
 
