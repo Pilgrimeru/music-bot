@@ -109,7 +109,7 @@
     "usageReply": "Usage: {prefix}{name} <Video Name>",
     "errorNotChannel": "You need to join a voice channel first!",
     "menuNothing": "Nothing selected",
-    "resultEmbedTitle": "Choose the songs to play.",
+    "resultEmbedTitle": "Choose the song to play.",
     "finished": "Search finished."
   },
   "shuffle": {

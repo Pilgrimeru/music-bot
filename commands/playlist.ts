@@ -28,6 +28,12 @@ export default {
 
     if (!channel) return message.reply(i18n.__("playlist.errorNotChannel")).then(purning);
 
+    if (!channel.joinable) return message.reply(i18n.__("playlist.missingPermissionConnect")).then(purning);
+
+    if (!channel.permissionsFor(bot.client.user!.id, true)?.has(PermissionsBitField.Flags.Speak)) {
+      return message.reply(i18n.__("playlist.missingPermissionSpeak")).then(purning);
+    }
+
     if (queue && channel.id !== queue.connection.joinConfig.channelId)
       return message
         .reply(i18n.__mf("play.errorNotInSameChannel", { user: message.client.user!.username }))

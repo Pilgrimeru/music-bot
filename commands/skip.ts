@@ -13,7 +13,7 @@ export default {
 
     if (!queue) return message.reply(i18n.__("skip.errorNotQueue")).then(purning);
 
-    if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
+    if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(purning);
 
     queue.player.stop(true);
 

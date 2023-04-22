@@ -109,7 +109,7 @@
     "usageReply": "Utilisation: {prefix}{name} <Nom de la vidéo>",
     "errorNotChannel": "Vous devez d'abord rejoindre un salon vocal !",
     "menuNothing": "Rien de sélectionné",
-    "resultEmbedTitle": "Choisissez les morceaux à jouer.",
+    "resultEmbedTitle": "Choisissez le morceau à jouer.",
     "finished": "Recherche terminée."
   },
   "shuffle": {

@@ -22,6 +22,12 @@ export default {
 
     if (!channel) return message.reply(i18n.__("play.errorNotChannel")).then(purning);
 
+    if (!channel.joinable) return message.reply(i18n.__("play.missingPermissionConnect")).then(purning);
+
+    if (!channel.permissionsFor(bot.client.user!.id, true)?.has(PermissionsBitField.Flags.Speak)) {
+      return message.reply(i18n.__("play.missingPermissionSpeak")).then(purning);
+    }
+
     const queue = bot.queues.get(message.guild!.id);
 
     if (queue && channel.id !== queue.connection.joinConfig.channelId)
