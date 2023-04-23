@@ -57,7 +57,7 @@ export default {
     }
 
     if (queue) {
-      queue.songs.push(...playlist.videos);
+      queue.enqueue(...playlist.videos);
     } else {
       const newQueue = new MusicQueue({
         message,

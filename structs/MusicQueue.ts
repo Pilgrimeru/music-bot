@@ -44,6 +44,7 @@ export class MusicQueue {
   private subscription: PlayerSubscription | undefined;
   private waitTimeout: NodeJS.Timeout | null;
   private nowPlayingCollector: any;
+  private stopped = false;
 
   public constructor(options: QueueOptions) {
     Object.assign(this, options);
@@ -54,21 +55,18 @@ export class MusicQueue {
         noSubscriber: NoSubscriberBehavior.Pause
       }
     });
-    this.subscription = this.connection.subscribe(this.player);
 
-    this.connection.on(VoiceConnectionStatus.Disconnected, async () => {
+    this.connection.on(VoiceConnectionStatus.Disconnected, async (_, disconnect) => {
+      if (disconnect.reason == 0 || disconnect.reason == 3) return;
       try {
+        this.connection.configureNetworking();
         this.connection.rejoin();
         await Promise.race([
           entersState(this.connection, VoiceConnectionStatus.Signalling, 5_000),
           entersState(this.connection, VoiceConnectionStatus.Connecting, 5_000),
         ]);
       } catch (error) {
-        if (this.resource || this.songs) {
-          this.stop();
-        } else {
-          this.connection.destroy();
-        }
+        this.leave();
       }
     });
 
@@ -87,17 +85,19 @@ export class MusicQueue {
       this.skip();
     });
 
-    this.bot.client.on("voiceStateUpdate", async (member: VoiceState) => {
-      let voiceChannel = member.channel
-      let clientChannel = member.guild.members.me!.voice.channelId
-      if (voiceChannel?.id == clientChannel && this.player.state.status == AudioPlayerStatus.Playing) {
-        let nbUser = voiceChannel?.members.filter(
-          (member) => !member.user.bot
-        );
-        if (nbUser?.size == 0) {
-          this.stop();
+    this.bot.client.on("voiceStateUpdate", async (voice: VoiceState) => {
+      setTimeout(() => {
+        let voiceChannel = voice.channel
+        let clientChannel = voice.guild.members.me!.voice.channelId
+        if (voiceChannel?.id === clientChannel) {
+          let nbUser = voiceChannel?.members.filter(
+            (member) => !member.user.bot
+          );
+          if (nbUser?.size === 0) {
+            this.leave();
+          }
         }
-      }
+      }, 5000);
     })
   }
 
@@ -111,7 +111,7 @@ export class MusicQueue {
 
       if (this.songs.length) {
         this.processQueue();
-      } else {
+      } else if (!this.stopped) {
         this.textChannel.send(i18n.__("play.queueEnded")).then(purning);
         this.stop();
       }
@@ -119,7 +119,8 @@ export class MusicQueue {
   }
 
   public enqueue(...songs: Song[]) {
-    if (this.waitTimeout !== null) {
+    this.stopped = false;
+    if (this.waitTimeout) {
       clearTimeout(this.waitTimeout);
       this.waitTimeout = null;
     }
@@ -128,28 +129,32 @@ export class MusicQueue {
   }
 
   public stop() {
-    if (!this.resource && !this.songs && !this.loop) return;
-    this.songs.length = 0;
-    this.loop = false;
-    this.player.stop();
-    this.nowPlayingCollector?.stop();
-    this.subscription?.unsubscribe();
+    if (this.stopped) return;
+    this.stopped = true;
+
     bot.queues.delete(this.message.guild!.id);
+    this.songs.length = 0;
+    this.nowPlayingCollector?.stop();
+    this.player.stop();
+    this.loop = false;
 
     this.waitTimeout = setTimeout(() => {
-      if (this.connection.state.status !== VoiceConnectionStatus.Destroyed) {
-
-        const queue = bot.queues.get(this.message.guild!.id);
-        if (!queue) {
-          this.connection.destroy();
-          this.textChannel.send(i18n.__("play.leaveChannel")).then(purning);
-        }
+      if (this.stopped) {
+        this.leave();
       }
     }, config.STAY_TIME * 1000);
   }
 
+  public leave() {
+    this.stop();
+    if (this.connection.state.status != VoiceConnectionStatus.Destroyed) {
+      this.connection.destroy();
+      this.textChannel.send(i18n.__("play.leaveChannel")).then(purning);
+    }
+  }
+
   private async processQueue(): Promise<void> {
-    if (this.player.state.status !== AudioPlayerStatus.Idle) {
+    if (this.player.state.status != AudioPlayerStatus.Idle) {
       return;
     }
 
@@ -188,7 +193,7 @@ export class MusicQueue {
         .setStyle(ButtonStyle.Secondary)
     );
 
-    let time : string;
+    let time: string;
     if (song.duration == 0) {
       time = i18n.__mf("nowplaying.live");
     } else {
@@ -198,7 +203,7 @@ export class MusicQueue {
     const nowPlayingMsg = await this.textChannel.send({
       embeds: [
         {
-          title : i18n.__mf("play.startedPlaying"),
+          title: i18n.__mf("play.startedPlaying"),
           description: `[${song.title}](${song.url})
           ${i18n.__mf("play.duration", " ")}\`${time}\``,
           thumbnail: {
@@ -240,20 +245,20 @@ export class MusicQueue {
       }
       await b.deferUpdate();
     })
-    
+
     collector.on("end", () => {
       const msg = (collector.options.message as Message<boolean>);
 
       if (config.PRUNING) {
         msg.delete().catch(() => null);
       } else {
-        nowPlayingMsg.edit({
-          embeds : [{
-              description: msg.embeds[0].description!,
-              thumbnail : msg.embeds[0].thumbnail!,
-              color: 0x69adc7
-            }],
-          components : []
+        msg.edit({
+          embeds: [{
+            description: msg.embeds[0].description!,
+            thumbnail: msg.embeds[0].thumbnail!,
+            color: 0x69adc7
+          }],
+          components: []
         });
       }
 
@@ -261,6 +266,6 @@ export class MusicQueue {
         this.nowPlayingCollector = null;
       }
     });
-    
+
   }
 }
