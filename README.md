@@ -1,18 +1,26 @@
-![Node build](https://github.com/eritislami/evobot/actions/workflows/node.yml/badge.svg)
-![Docker build](https://github.com/eritislami/evobot/actions/workflows/docker.yml/badge.svg)
-[![Commitizen friendly](https://img.shields.io/badge/commitizen-friendly-brightgreen.svg)](http://commitizen.github.io/cz-cli/)
+# 🎧 Music Bot ([Evobot](https://github.com/eritislami/evobot) fork)
+> My vision of a simple and fast discord music bot.
 
 ![logo](https://cdn.discordapp.com/attachments/643921269590458386/1022215395404435527/8aa95700-7730-11e9-84be-e80f28520325.jpg)
 
-# 🤖 Discord Music Bot
+# ⚡ Why this fork ?
+- It fixes most of the bugs or crashes of the bot.
+- It offers a more modern interface using the latest features of Discord.
+- It supports Spotify and SoundCloud sources.
+- It sinificantly improves the music queue. (connection stability and execution speed).
 
-> Discord Music Bot built with TypeScript, discord.js & uses Command Handler from [discordjs.guide](https://discordjs.guide)
+### 📉 What are its limits?
+- The end of clip support
+- The end of docker support
+- The majority of foreign languages need to be re-implemented
+
 
 ## Requirements
 
 1. Discord Bot Token **[Guide](https://discordjs.guide/preparations/setting-up-a-bot-application.html#creating-your-bot)**  
 1.1. Enable 'Message Content Intent' in Discord Developer Portal
-2. Node.js 16.11.0 or newer
+2. (Optional) Spotify Client ID and Client Secret **[Guide (step 1 to 3)](https://stevesie.com/docs/pages/spotify-client-id-secret-developer-api)**
+3. Node.js 16.11.0 or newer
 
 ## 🚀 Getting Started
 
@@ -22,7 +30,7 @@ cd music-bot
 npm install
 ```
 
-After installation finishes follow configuration instructions then run `npm run start` to start the bot.
+After installation finishes follow configuration instructions then run `npm start` to start the bot.
 
 ## ⚙️ Configuration
 
@@ -33,12 +41,12 @@ Copy or Rename `config.json.example` to `config.json` and fill out the values:
 ```json
 {
   "TOKEN": "",
-  "MAX_PLAYLIST_SIZE": 10,
+  "MAX_PLAYLIST_SIZE": 100,
   "PREFIX": "!",
-  "PRUNING": false,
+  "PRUNING": true,
   "LOCALE": "en",
   "STAY_TIME": 30,
-  "DEFAULT_VOLUME": 100
+  "DEFAULT_VOLUME": 100,
   "SPOTIFY_CLIENT_ID": "",
   "SPOTIFY_CLIENT_SECRET": ""
 }
@@ -55,7 +63,7 @@ Currently available locales are:
 
 > Note: The default prefix is '!'
 
-- 🎶 Play music from YouTube via url
+- 🎶 Play song or playlist from YouTube, SoundCloud or Spotify via url
 
 `!play https://www.youtube.com/watch?v=GLvohMXgcBo`
 
@@ -67,13 +75,8 @@ Currently available locales are:
 
 `!search Pearl Jam`
 
-Reply with song number or numbers seperated by comma that you wish to play
+Next, select the track you have chosen from the drop-down menu.
 
-Examples: `1` or `1,2,3`
-
-- 📃 Play youtube playlists via url
-
-`!playlist https://www.youtube.com/watch?v=YlUKcNNmywk&list=PL5RNCwK3GIO13SR_o57bGJCEmqFAwq82c`
 
 - 🔎 Play youtube playlists via search query
 
@@ -89,13 +92,15 @@ Examples: `1` or `1,2,3`
 - Resume (!resume, !r)
 - Skip (!skip, !s)
 - Skip to song # in queue (!skipto, !st)
+- Stop (!stop)
 - Move a song in the queue (!move, !mv)
 - Remove song # from queue (!remove, !rm)
 - Show ping to Discord API (!ping)
 - Show bot uptime (!uptime)
 - Toggle pruning of bot messages (!pruning)
 - Help (!help, !h)
+- Invite (!invite)
 - Command Handler from [discordjs.guide](https://discordjs.guide/)
 - Media Controls via buttons
 
-![buttons](https://cdn.discordapp.com/attachments/643921269590458386/1022217161655210126/unknown.png)
+![buttons](https://cdn.discordapp.com/attachments/643921269590458386/1099689057107329096/image.png)
