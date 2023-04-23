@@ -1,6 +1,6 @@
-import { Message, EmbedBuilder } from "discord.js";
-import { i18n } from "../utils/i18n";
+import { EmbedBuilder, Message } from "discord.js";
 import { bot } from "../index";
+import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
 
 export default {

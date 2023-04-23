@@ -1,6 +1,6 @@
 import { AudioResource, createAudioResource } from "@discordjs/voice";
+import { so_validate, soundcloud, stream, yt_validate } from "play-dl";
 import youtube from "youtube-sr";
-import { stream, yt_validate, soundcloud, so_validate } from "play-dl";
 
 export interface SongData {
   url: string;

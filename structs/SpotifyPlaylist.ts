@@ -1,9 +1,9 @@
-import { config } from "../utils/config";
-import { Song } from "./Song";
-import youtube, { Video } from "youtube-sr";
-import { bot } from "../index";
 import { sp_validate } from "play-dl";
 import { parse, Playlist as ParsedPlaylist } from 'spotify-uri';
+import youtube, { Video } from "youtube-sr";
+import { bot } from "../index";
+import { config } from "../utils/config";
+import { Song } from "./Song";
 
 export class SpotifyPlaylist {
   public videos: Song[];

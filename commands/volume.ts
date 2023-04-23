@@ -1,8 +1,8 @@
 import { Message } from "discord.js";
-import { i18n } from "../utils/i18n";
-import { canModifyQueue } from "../utils/queue";
 import { bot } from "../index";
+import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
+import { canModifyQueue } from "../utils/queue";
 
 export default {
   name: "volume",

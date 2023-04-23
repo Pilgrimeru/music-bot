@@ -1,16 +1,14 @@
-import { Client, Collection, Snowflake, ActivityType } from "discord.js";
+import { ActivityType, Client, Collection, Snowflake } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { getFreeClientID, setToken } from "play-dl";
+import Spotify from "spotify-web-api-node";
 import { Command } from "../interfaces/Command";
-import { checkPermissions, PermissionResult } from "../utils/checkPermissions";
+import { MissingPermissionsException } from "../utils/MissingPermissionsException";
+import { PermissionResult, checkPermissions } from "../utils/checkPermissions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
-import { MissingPermissionsException } from "../utils/MissingPermissionsException";
 import { MusicQueue } from "./MusicQueue";
-import Spotify from "spotify-web-api-node";
-
-
 
 const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
 

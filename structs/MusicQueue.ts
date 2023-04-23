@@ -2,18 +2,20 @@ import {
   AudioPlayer,
   AudioPlayerStatus,
   AudioResource,
-  createAudioPlayer,
   NoSubscriberBehavior,
+  PlayerSubscription,
   VoiceConnection,
   VoiceConnectionStatus,
-  PlayerSubscription,
-  entersState,
+  createAudioPlayer,
+  entersState
 } from "@discordjs/voice";
 import {
+  ActionRowBuilder,
+  ButtonBuilder,
+  ButtonStyle,
   Message,
-  ButtonStyle, ButtonBuilder, ActionRowBuilder,
-  TextChannel,
   PermissionsBitField,
+  TextChannel,
   VoiceState,
 } from "discord.js";
 import console from "node:console";
@@ -22,8 +24,8 @@ import { QueueOptions } from "../interfaces/QueueOptions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
-import { formatTime } from "../utils/time";
 import { canModifyQueue } from "../utils/queue";
+import { formatTime } from "../utils/time";
 import { Song } from "./Song";
 
 export class MusicQueue {

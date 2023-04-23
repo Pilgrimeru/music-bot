@@ -1,7 +1,7 @@
-import { Message, EmbedBuilder } from "discord.js";
+import { EmbedBuilder, Message } from "discord.js";
 import { splitBar } from "string-progressbar";
-import { i18n } from "../utils/i18n";
 import { bot } from "../index";
+import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
 import { formatTime } from "../utils/time";
 

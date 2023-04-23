@@ -1,9 +1,9 @@
-import { Message, ActionRowBuilder, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
+import { ActionRowBuilder, Message, StringSelectMenuBuilder, StringSelectMenuInteraction } from "discord.js";
 import youtube, { Video } from "youtube-sr";
 import { bot } from "../index";
+import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
-import { config } from "../utils/config";
 
 export default {
   name: "search",

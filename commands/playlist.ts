@@ -1,13 +1,13 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
 import { Message, PermissionsBitField } from "discord.js";
+import { so_validate, sp_validate } from "play-dl";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
-import { YoutubePlaylist } from "../structs/YoutubePlaylist";
-import { SpotifyPlaylist } from "../structs/SpotifyPlaylist";
-import { i18n } from "../utils/i18n";
-import { so_validate, sp_validate } from "play-dl";
-import { purning } from "../utils/pruning";
 import { SoundcloudPlaylist } from "../structs/SoundcloudPlaylist";
+import { SpotifyPlaylist } from "../structs/SpotifyPlaylist";
+import { YoutubePlaylist } from "../structs/YoutubePlaylist";
+import { i18n } from "../utils/i18n";
+import { purning } from "../utils/pruning";
 
 export default {
   name: "playlist",

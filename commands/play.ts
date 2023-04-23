@@ -1,12 +1,12 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
 import { Message, PermissionsBitField } from "discord.js";
+import { so_validate, sp_validate, yt_validate } from "play-dl";
+import { Track, parse } from 'spotify-uri';
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
-import { so_validate, sp_validate, yt_validate } from "play-dl";
 import { purning } from "../utils/pruning";
-import { parse, Track } from 'spotify-uri';
 
 export default {
   name: "play",
@@ -24,9 +24,8 @@ export default {
 
     if (!channel.joinable) return message.reply(i18n.__("play.missingPermissionConnect")).then(purning);
 
-    if (!channel.permissionsFor(bot.client.user!.id, true)?.has(PermissionsBitField.Flags.Speak)) {
+    if (!channel.permissionsFor(bot.client.user!.id, true)?.has(PermissionsBitField.Flags.Speak))
       return message.reply(i18n.__("play.missingPermissionSpeak")).then(purning);
-    }
 
     const queue = bot.queues.get(message.guild!.id);
 

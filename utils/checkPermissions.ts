@@ -7,7 +7,7 @@ export interface PermissionResult {
 }
 
 export async function checkPermissions(command: Command, message: Message): Promise<PermissionResult> {
-  const member = await message.guild!.members.fetch({ user: message.client.user!.id });
+  const member = await message.member!;
   const requiredPermissions = command.permissions as PermissionResolvable[];
 
   if (!command.permissions) return { result: true, missing: [] };
