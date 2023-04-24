@@ -196,10 +196,12 @@ export class MusicQueue {
     let time: string;
     if (song.duration == 0) {
       time = i18n.__mf("nowplaying.live");
+    } else if (song.duration === 1){
+      time = "file"
     } else {
       time = formatTime(song.duration);
     }
-
+    
     const nowPlayingMsg = await this.textChannel.send({
       embeds: [
         {

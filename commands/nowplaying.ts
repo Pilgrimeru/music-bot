@@ -39,7 +39,7 @@ export default {
         }
       );
 
-      if (song.duration > 0) {
+      if (song.duration > 1) {
         nowPlaying.setFooter({
           text: i18n.__mf("nowplaying.timeRemaining", {
             time: formatTime(left)

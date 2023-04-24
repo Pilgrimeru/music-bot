@@ -1,11 +1,9 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
 import { Message, PermissionsBitField } from "discord.js";
-import { so_validate, sp_validate } from "play-dl";
+import { validate } from "play-dl";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
-import { SoundcloudPlaylist } from "../structs/SoundcloudPlaylist";
-import { SpotifyPlaylist } from "../structs/SpotifyPlaylist";
-import { YoutubePlaylist } from "../structs/YoutubePlaylist";
+import { Playlist } from "../structs/Playlist";
 import { i18n } from "../utils/i18n";
 import { purning } from "../utils/pruning";
 
@@ -39,25 +37,33 @@ export default {
         .reply(i18n.__mf("play.errorNotInSameChannel", { user: message.client.user!.username }))
         .then(purning);
 
-    let playlist;
+    const loadingReply = await message.reply(i18n.__mf("common.loading"));
+    
     const url: string = args[0];
+    let type: string | false = await validate(url);
 
+    let playlist : Playlist;
+    
     try {
-      if (sp_validate(url) === "playlist" || sp_validate(url) === "album") {
-        playlist = await SpotifyPlaylist.from(url);
-      } else if (await so_validate(url) === "playlist") {
-        playlist = await SoundcloudPlaylist.from(url);
+      if (type === "sp_playlist" || type === "sp_album") {
+        playlist = await Playlist.fromSpotify(url);
+      } else if (type === "so_playlist") {
+        playlist = await Playlist.fromSoundcloud(url);
+      } else if (type === "dz_playlist" || type === "dz_album") {
+        playlist = await Playlist.fromDeezer(url);
       } else {
-        var search = args.join(" ");
-        playlist = await YoutubePlaylist.from(url, search);
+        let search = args.join(" ");
+        playlist = await Playlist.fromYoutube(url, search);
       }
     } catch (error) {
       console.error(error);
       return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).then(purning);
+    } finally {
+      loadingReply.delete().catch(() => null);
     }
 
     if (queue) {
-      queue.enqueue(...playlist.videos);
+      queue.enqueue(...playlist.songs);
     } else {
       const newQueue = new MusicQueue({
         message,
@@ -69,7 +75,7 @@ export default {
       });
 
       bot.queues.set(message.guild!.id, newQueue);
-      newQueue.enqueue(...playlist.videos);
+      newQueue.enqueue(...playlist.songs);
     }
 
     message

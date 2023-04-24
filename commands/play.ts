@@ -1,7 +1,6 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
 import { Message, PermissionsBitField } from "discord.js";
-import { so_validate, sp_validate, yt_validate } from "play-dl";
-import { Track, parse } from 'spotify-uri';
+import { validate } from "play-dl";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
@@ -34,40 +33,43 @@ export default {
         .reply(i18n.__mf("play.errorNotInSameChannel", { user: bot.client.user!.username }))
         .then(purning);
 
-    if (!args.length) return message.reply(i18n.__mf("play.usageReply", { prefix: bot.prefix })).then(purning);
-
-    const url = args[0];
-    let search = args.join(" ");
+    if (!args.length && !message.attachments.size)
+      return message.reply(i18n.__mf("play.usageReply", { prefix: bot.prefix })).then(purning);
 
     const loadingReply = await message.reply(i18n.__mf("common.loading"));
 
+    const url = (!args.length) ? message.attachments.first()?.url! : args[0];
+    let type: string | false = await validate(url);
+    if (!type && url.startsWith("https") && /\.(mp3|wav|flac|ogg)$/i.test(url)) {
+      type = "external_link"
+    }
+
     // Start the playlist if playlist url was provided
-    if (
-      url.startsWith('https') && yt_validate(url) === "playlist" ||
-      sp_validate(url) === "playlist" || sp_validate(url) === "album" ||
-      await so_validate(url) === "playlist"
-    ) {
-      await loadingReply.delete().catch(() => null);;
+    if (type.toString().match(/playlist|album/)) {
+      loadingReply.delete().catch(() => null);
       return bot.commands.get("playlist")!.execute(message, args);
     }
 
-    let song;
-    if (sp_validate(url) === "track") {
-
-      await bot.spotifyApiConnect();
-
-      const trackId = (parse(url) as Track).id;
-
-      await bot.spotify.getTrack(trackId)
-        .then(function (data: any) {
-          search = data.body.artists[0].name + " " + data.body.name;
-        }, function (err: any) {
-          console.error(err);
-        });
-    }
-
+    let song: Song;
     try {
-      song = await Song.from(url, search);
+
+      switch (type) {
+        case "sp_track":
+          song = await Song.fromSpotify(url);
+          break;
+        case "so_track":
+          song = await Song.fromSoundCloud(url);
+          break;
+        case "dz_track":
+          song = await Song.fromDeezer(url);
+          break;
+        case "external_link":
+          song = await Song.fromExternalLink(url);
+          break;
+        default:
+          let search = args.join(" ");
+          song = await Song.fromYoutube(url, search);
+      }
     } catch (error) {
       console.error(error);
       return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
