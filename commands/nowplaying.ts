@@ -24,7 +24,7 @@ export default {
       .setTitle(`${queue.player.state.status === "playing" ? "▶" : "⏸"} ${i18n.__("nowplaying.embedTitle")}`)
       .setDescription(`[${song.title}](${song.url})`)
       .setColor("#69adc7")
-      .setThumbnail(`https://img.youtube.com/vi/${song.id}/maxresdefault.jpg`)
+      .setThumbnail(song.thumbnail);
 
     
       nowPlaying.addFields(
@@ -39,7 +39,7 @@ export default {
         }
       );
 
-      if (song.duration > 1) {
+      if (song.duration >= 1000) {
         nowPlaying.setFooter({
           text: i18n.__mf("nowplaying.timeRemaining", {
             time: formatTime(left)

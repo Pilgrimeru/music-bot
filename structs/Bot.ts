@@ -47,7 +47,7 @@ export class Bot {
 
   public async spotifyApiConnect() {
     if (this.spotifyExpiration < Date.now()) {
-      let data = await this.spotify.clientCredentialsGrant().catch()
+      let data = await this.spotify.clientCredentialsGrant().catch();
       this.spotify.setAccessToken(data.body['access_token']);
       this.spotifyExpiration = (Date.now() + data.body['expires_in'] * 1000);
     }

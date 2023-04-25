@@ -18,7 +18,6 @@ import {
   TextChannel,
   VoiceState,
 } from "discord.js";
-import console from "node:console";
 import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
 import { config } from "../utils/config";
@@ -173,101 +172,99 @@ export class MusicQueue {
   }
 
   private async sendPlayingMessage(resource: AudioResource) {
-    const song = (resource as AudioResource<Song>).metadata;
+    try {
+      const song = (resource as AudioResource<Song>).metadata;
 
+      const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
+        new ButtonBuilder()
+          .setCustomId("stop")
+          .setEmoji("⏹")
+          .setStyle(ButtonStyle.Secondary),
 
-    const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
-      new ButtonBuilder()
-        .setCustomId("stop")
-        .setEmoji("⏹")
-        .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId("pause")
+          .setEmoji("⏸")
+          .setStyle(ButtonStyle.Secondary),
 
-      new ButtonBuilder()
-        .setCustomId("pause")
-        .setEmoji("⏸")
-        .setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder()
+          .setCustomId("skip")
+          .setEmoji("⏭")
+          .setStyle(ButtonStyle.Secondary)
+      );
 
-      new ButtonBuilder()
-        .setCustomId("skip")
-        .setEmoji("⏭")
-        .setStyle(ButtonStyle.Secondary)
-    );
-
-    let time: string;
-    if (song.duration == 0) {
-      time = i18n.__mf("nowplaying.live");
-    } else if (song.duration === 1){
-      time = "file"
-    } else {
-      time = formatTime(song.duration);
-    }
-    
-    const nowPlayingMsg = await this.textChannel.send({
-      embeds: [
-        {
-          title: i18n.__mf("play.startedPlaying"),
-          description: `[${song.title}](${song.url})
-          ${i18n.__mf("play.duration", " ")}\`${time}\``,
-          thumbnail: {
-            url: `https://img.youtube.com/vi/${song.id}/maxresdefault.jpg`,
-          },
-          color: 0x69adc7
-        }
-      ],
-      components: [row],
-    });
-
-    const collector = nowPlayingMsg.createMessageComponentCollector({ time: 12 * 3600 * 1000 });
-    this.nowPlayingCollector = collector;
-
-    collector.on("collect", async (b) => {
-      let interactUser = await this.textChannel.guild.members.fetch(b.user);
-      let permission = this.textChannel.permissionsFor(interactUser).has(PermissionsBitField.Flags.SendMessages, true);
-
-      if (canModifyQueue(interactUser)) {
-        if (b.customId === "stop" && permission) {
-          this.stop();
-          this.textChannel.send(i18n.__("stop.result")).then(purning);
-        }
-        if (b.customId === "skip" && permission) {
-          this.player.stop(true);
-        }
-        if (b.customId === "pause" && permission) {
-          if (this.player.state.status == AudioPlayerStatus.Playing) {
-            this.player.pause();
-            this.textChannel.send(i18n.__mf("pause.result")).then(purning);
-          } else {
-            this.player.unpause();
-            this.textChannel.send(i18n.__mf("resume.resultNotPlaying")).then(purning);
-          }
-        }
+      let time: string;
+      if (song.duration == 0) {
+        time = i18n.__mf("nowplaying.live");
       } else {
-        this.textChannel.send(i18n.__("common.errorNotChannel"))
-          .then(purning);
+        time = formatTime(song.duration);
       }
-      await b.deferUpdate();
-    })
 
-    collector.on("end", () => {
-      const msg = (collector.options.message as Message<boolean>);
-
-      if (config.PRUNING) {
-        msg.delete().catch(() => null);
-      } else {
-        msg.edit({
-          embeds: [{
-            description: msg.embeds[0].description!,
-            thumbnail: msg.embeds[0].thumbnail!,
+      const nowPlayingMsg = await this.textChannel.send({
+        embeds: [
+          {
+            title: i18n.__mf("play.startedPlaying"),
+            description: `[${song.title}](${song.url})
+            ${i18n.__mf("play.duration", " ")}\`${time}\``,
+            thumbnail: {
+              url: song.thumbnail,
+            },
             color: 0x69adc7
-          }],
-          components: []
-        });
-      }
+          }
+        ],
+        components: [row],
+      });
 
-      if (collector == this.nowPlayingCollector) {
-        this.nowPlayingCollector = null;
-      }
-    });
+      const collector = nowPlayingMsg.createMessageComponentCollector();
+      this.nowPlayingCollector = collector;
 
+      collector.on("collect", async (b) => {
+        const interactUser = await this.textChannel.guild.members.fetch(b.user);
+        const permission = this.textChannel.permissionsFor(interactUser).has(PermissionsBitField.Flags.SendMessages, true);
+
+        if (canModifyQueue(interactUser)) {
+          if (b.customId === "stop" && permission) {
+            this.stop();
+            this.textChannel.send(i18n.__("stop.result")).then(purning);
+          }
+          if (b.customId === "skip" && permission) {
+            this.player.stop(true);
+          }
+          if (b.customId === "pause" && permission) {
+            if (this.player.state.status == AudioPlayerStatus.Playing) {
+              this.player.pause();
+              this.textChannel.send(i18n.__mf("pause.result")).then(purning);
+            } else {
+              this.player.unpause();
+              this.textChannel.send(i18n.__mf("resume.resultNotPlaying")).then(purning);
+            }
+          }
+        } else {
+          this.textChannel.send(i18n.__("common.errorNotChannel"))
+            .then(purning);
+        }
+        await b.deferUpdate();
+      })
+
+      collector.on("end", () => {
+        const msg = (collector.options.message as Message<boolean>);
+
+        if (config.PRUNING) {
+          msg.delete().catch(() => null);
+        } else {
+          msg.edit({
+            embeds: [{
+              description: msg.embeds[0].description!,
+              thumbnail: msg.embeds[0].thumbnail!,
+              color: 0x69adc7
+            }],
+            components: []
+          });
+        }
+
+        if (collector == this.nowPlayingCollector) {
+          this.nowPlayingCollector = null;
+        }
+      });
+    } catch { console.error }
   }
 }

@@ -1,6 +1,7 @@
 import { AudioResource, StreamType, createAudioResource } from "@discordjs/voice";
 import axios from 'axios';
-import { DeezerTrack, deezer, stream as getStream, so_validate, soundcloud, yt_validate } from "play-dl";
+import { parseStream } from 'music-metadata';
+import { DeezerTrack, SoundCloudTrack, deezer, stream as getStream, so_validate, soundcloud, yt_validate } from "play-dl";
 import { Track, parse } from "spotify-uri";
 import youtube from "youtube-sr";
 import { bot } from "..";
@@ -10,20 +11,17 @@ export interface SongData {
   url: string;
   title: string | undefined;
   duration: number;
-  id: string | undefined;
+  thumbnail: string;
 }
 
 export class Song {
   public readonly url: string;
   public readonly title: string | undefined;
   public readonly duration: number;
-  public readonly id: string | undefined;
+  public readonly thumbnail: string;
 
-  public constructor({ url, title, duration, id }: SongData) {
-    this.url = url;
-    this.title = title;
-    this.duration = duration;
-    this.id = id;
+  public constructor(options: SongData) {
+    Object.assign(this, options)
   }
 
   public static async fromYoutube(url: string = "", search: string = ""): Promise<Song> {
@@ -37,7 +35,7 @@ export class Song {
         url: songInfo.url,
         title: songInfo.title,
         duration: songInfo.duration,
-        id: songInfo.id,
+        thumbnail: songInfo.thumbnail?.url!,
       });
     } else {
       songInfo = await youtube.searchOne(search);
@@ -48,21 +46,21 @@ export class Song {
         url: songInfo.url,
         title: songInfo.title,
         duration: songInfo.duration,
-        id: songInfo.id,
+        thumbnail: songInfo.thumbnail?.url!,
       });
     }
   }
 
   public static async fromSoundCloud(url: string = ""): Promise<Song> {
-    let songInfo = await soundcloud(url);
-    if (!songInfo)
+    let songInfo = (await soundcloud(url) as SoundCloudTrack);
+    if (!songInfo || songInfo.type != "track")
       throw new Error("Track not found : " + url);
 
     return new this({
       url: songInfo.url,
       title: songInfo.name,
       duration: songInfo.durationInMs,
-      id: undefined,
+      thumbnail: songInfo.thumbnail,
     });
   }
 
@@ -78,8 +76,8 @@ export class Song {
   public static async fromDeezer(url: string = ""): Promise<Song> {
     let data = await deezer(url).catch(console.error);
     let track: DeezerTrack | undefined;
-    if (data && data.type == "track") {
-      track = data as DeezerTrack
+    if (data && data.type === "track") {
+      track = data as DeezerTrack;
     }
     let search = track ? track.artist.name + " " + track.title : "";
     return await Song.fromYoutube("", search)
@@ -90,14 +88,22 @@ export class Song {
 
       const name = url.substring(url.lastIndexOf("/") + 1);
 
+      const response = await axios.get(url, {
+        responseType: 'stream',
+      }).catch(() => null)
+      if (!response) throw new Error("Bad link: " + url);
+      
+      let duration = (await parseStream(response.data, {mimeType: response.headers["content-type"], size: response.headers["content-length"]})).format.duration;
+      duration = duration ? Math.floor(duration) * 1000 : 1
+
       return new this({
         url: url,
         title: name,
-        duration: 1,
-        id: undefined,
+        duration: duration,
+        thumbnail: "https://discord.com/empty.jpg",
       });
     }
-    throw new Error("Bad link")
+    throw new Error("Bad link " + url);
   }
 
   public async makeResource(): Promise<AudioResource<Song> | void> {
