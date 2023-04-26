@@ -5,14 +5,19 @@
 
 # ⚡ Why this fork ?
 - It fixes most of the bugs or crashes of the bot.
-- It offers a more modern interface using the latest features of Discord.
-- It supports Spotify and SoundCloud sources.
+- It offers a more modern reply using the latest Discord features.
+- It adds support for Spotify, SoundCloud, Deezer, audio links and attachments.
 - It sinificantly improves the music queue. (connection stability and execution speed).
+- It adds a loop mode of a music. (🔂)
+- It adds an automatic disconnection when it is alone in a voice channel.
+- It significantly improves the pruning functionality.
 
 ### 📉 What are its limits?
-- The end of clip support
-- The end of docker support
-- The majority of foreign languages need to be re-implemented
+- It does not support slash commands.
+- The end of clip support.
+- The end of docker support.
+- The majority of foreign languages need to be re-implemented.
+- The number of media controls on the 'now playing' message has been reduced
 
 
 ## Requirements
