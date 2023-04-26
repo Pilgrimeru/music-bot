@@ -13,9 +13,7 @@ try {
     PRUNING: process.env.PRUNING === "true" ? true : false,
     STAY_TIME: parseInt(process.env.STAY_TIME!) || 1,
     DEFAULT_VOLUME: parseInt(process.env.DEFAULT_VOLUME!) || 100,
-    LOCALE: process.env.LOCALE || "en",
-    SPOTIFY_CLIENT_ID: process.env.SPOTIFY_CLIENT_ID || "",
-    SPOTIFY_CLIENT_SECRET : process.env.SPOTIFY_CLIENT_SECRET || ""
+    LOCALE: process.env.LOCALE || "en"
   };
 }
 

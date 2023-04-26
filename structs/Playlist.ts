@@ -1,9 +1,9 @@
-import { DeezerAlbum, DeezerPlaylist, SoundCloudPlaylist, SoundCloudTrack, deezer, soundcloud, sp_validate } from "play-dl";
-import { Playlist as ParsedPlaylist, parse } from 'spotify-uri';
+import fetch from 'isomorphic-unfetch';
+import { DeezerAlbum, DeezerPlaylist, SoundCloudPlaylist, SoundCloudTrack, deezer, soundcloud } from "play-dl";
 import youtube, { Video, Playlist as YoutubePlaylist } from "youtube-sr";
-import { bot } from "../index";
 import { config } from "../utils/config";
 import { Song } from "./Song";
+const { getPreview, getTracks } = require('spotify-url-info')(fetch);
 
 interface PlaylistData {
   title: string;
@@ -84,31 +84,19 @@ export class Playlist {
   }
 
   public static async fromSpotify(url: string): Promise<Playlist> {
-    await bot.spotifyApiConnect();
-    const spotifyId = (parse(url) as ParsedPlaylist).id;
 
-    let infos: Promise<Video>[] = [];
-    const type = sp_validate(url);
+    let playlistPreview = await getPreview(url);
+    if (playlistPreview.type !== "playlist" && playlistPreview.type !== "album")
+      throw new Error("Playlist not found : " + url);
+    let playlistTracks = await getTracks(url);
 
-    let playlist: any;
-    if (type === "playlist") {
-      playlist = await bot.spotify.getPlaylist(spotifyId);
-      const tracks = playlist.body.tracks.items;
-      infos = tracks.map(async (item: any) => {
-        return await youtube.searchOne(item.track.artists[0].name + " " + item.track.name);
-      });
-    } else if (type == "album") {
-      playlist = await bot.spotify.getAlbum(spotifyId);
-      const tracks = playlist.body.tracks.items;
-      infos = tracks.map(async (item: any) => {
-        return await youtube.searchOne(item.artists[0].name + " " + item.name);
-      });
-    }
-
+    let infos: Promise<Video>[] = playlistTracks.map(async (track: any) => {
+      return await youtube.searchOne(track.artist + " " + track.name);
+    });
     const songs = Playlist.getSongsFromYoutube(await Promise.all(infos));
     if (!songs.length) throw new Error("Invalid Spotify playlist: " + url);
 
-    return new this({ title: playlist.body.name, url: url, songs: songs });
+    return new this({ title: playlistPreview.title, url: playlistPreview.link, songs: songs });
   }
 
   public static async fromDeezer(url: string): Promise<Playlist> {

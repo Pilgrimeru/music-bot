@@ -1,10 +1,10 @@
 import { AudioResource, StreamType, createAudioResource } from "@discordjs/voice";
 import axios from 'axios';
+import fetch from 'isomorphic-unfetch';
 import { parseStream } from 'music-metadata';
 import { DeezerTrack, SoundCloudTrack, deezer, stream as getStream, so_validate, soundcloud, yt_validate } from "play-dl";
-import { Track, parse } from "spotify-uri";
 import youtube from "youtube-sr";
-import { bot } from "../index";
+const { getPreview } = require('spotify-url-info')(fetch);
 
 
 export interface SongData {
@@ -65,11 +65,9 @@ export class Song {
   }
 
   public static async fromSpotify(url: string = ""): Promise<Song> {
-    await bot.spotifyApiConnect();
-    const trackId = (parse(url) as Track).id;
-
-    let data = await bot.spotify.getTrack(trackId).catch(console.error);
-    let search = data ? data.body.artists[0].name + " " + data.body.name : "";
+    let data = await getPreview(url);
+    if (data.type !== "track") throw new Error("Track not found : " + url);
+    let search = data ? data.artist + " " + data.track : "";
     return await Song.fromYoutube("", search);
   }
 

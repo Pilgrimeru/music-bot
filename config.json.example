@@ -6,6 +6,4 @@
   "LOCALE": "en",
   "STAY_TIME": 30,
   "DEFAULT_VOLUME": 100,
-  "SPOTIFY_CLIENT_ID": "",
-  "SPOTIFY_CLIENT_SECRET": ""
 }

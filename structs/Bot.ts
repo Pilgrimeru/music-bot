@@ -2,7 +2,6 @@ import { ActivityType, Client, Collection, Snowflake } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { getFreeClientID, setToken } from "play-dl";
-import Spotify from "spotify-web-api-node";
 import { Command } from "../interfaces/Command";
 import { MissingPermissionsException } from "../utils/MissingPermissionsException";
 import { PermissionResult, checkPermissions } from "../utils/checkPermissions";
@@ -18,11 +17,6 @@ export class Bot {
   public commands = new Collection<string, Command>();
   public cooldowns = new Collection<string, Collection<Snowflake, number>>();
   public queues = new Collection<Snowflake, MusicQueue>();
-  public spotify = new Spotify({
-    clientId: config.SPOTIFY_CLIENT_ID,
-    clientSecret: config.SPOTIFY_CLIENT_SECRET
-  });
-  private spotifyExpiration = 0;
 
   public constructor(public readonly client: Client) {
     this.client.login(config.TOKEN);
@@ -42,14 +36,6 @@ export class Bot {
     this.importCommands();
     this.onMessageCreate();
     this.soundcloudApiConnect();
-  }
-
-  public async spotifyApiConnect() {
-    if (this.spotifyExpiration < Date.now()) {
-      let data = await this.spotify.clientCredentialsGrant().catch();
-      this.spotify.setAccessToken(data.body['access_token']);
-      this.spotifyExpiration = (Date.now() + data.body['expires_in'] * 1000);
-    }
   }
 
   public async soundcloudApiConnect() {
