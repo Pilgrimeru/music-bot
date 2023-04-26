@@ -19,7 +19,7 @@ export default {
     let nodeRamUsage = Math.round(memoryUsage().heapUsed / 1024 / 1024);
 
     let embed = new EmbedBuilder()
-      .setTitle("Stats of" + bot.client.user?.username)
+      .setTitle("Stats of " + bot.client.user?.username)
       .setFields(
         {
           name: `**System**`,
@@ -34,7 +34,7 @@ export default {
           inline: false,
         }
       )
-      .setThumbnail(bot.client.user ? bot.client.user.avatar : null);
+      .setThumbnail(bot.client.user ? bot.client.user.avatarURL() : null);
     message.reply({ embeds: [embed] }).then(purning);
   }
 };
