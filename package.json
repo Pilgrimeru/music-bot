@@ -1,7 +1,7 @@
 {
   "name": "music-bot",
   "version": "2.6.0",
-  "description": "Bot de music basé sur EvoBot avec des boutons et play-dl",
+  "description": "EvoBot fork: Improved music experience, bug fixes, multiple sources.",
   "main": "index.ts",
   "author": "Pilgrimeru",
   "private": true,
