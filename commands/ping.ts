@@ -1,6 +1,6 @@
 import { Message } from "discord.js";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
+import { purning } from "../utils/tools";
 
 export default {
   name: "ping",

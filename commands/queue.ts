@@ -3,7 +3,7 @@ import { bot } from "../index";
 import { Song } from "../structs/Song";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
+import { purning } from "../utils/tools";
 
 export default {
   name: "queue",
@@ -15,7 +15,7 @@ export default {
     if (!queue || !queue.songs.length) return message.reply(i18n.__("queue.errorNotQueue")).then(purning);
 
     const embeds = generateQueueEmbed(message, queue.songs);
-    
+
     let currentPage = 0;
     if (!isNaN(args[0]) && args[0] > 0 && args[0] <= embeds.length) {
       currentPage = args[0] - 1;
@@ -26,9 +26,9 @@ export default {
     try {
       const row = new ActionRowBuilder<ButtonBuilder>().addComponents(
 
-        new ButtonBuilder().setCustomId("left").setEmoji('⬅️').setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setCustomId("previous").setEmoji('⬅️').setStyle(ButtonStyle.Secondary),
 
-        new ButtonBuilder().setCustomId("right").setEmoji('➡️').setStyle(ButtonStyle.Secondary),
+        new ButtonBuilder().setCustomId("next").setEmoji('➡️').setStyle(ButtonStyle.Secondary),
 
         new ButtonBuilder().setCustomId("close").setEmoji('❌').setStyle(ButtonStyle.Secondary),
 
@@ -49,7 +49,7 @@ export default {
     const collector = queueEmbed.createMessageComponentCollector({ time: 120000 });
 
     collector.on('collect', async (q) => {
-      if (q.customId === "left") {
+      if (q.customId === "previous") {
         if (currentPage !== 0) {
           currentPage--;
           queueEmbed.edit({
@@ -58,7 +58,7 @@ export default {
           });
         }
       }
-      if (q.customId === "right") {
+      if (q.customId === "next") {
         if (currentPage < embeds.length - 1) {
           currentPage++;
           queueEmbed.edit({
@@ -73,7 +73,7 @@ export default {
 
       await q.deferUpdate();
     });
-    
+
     collector.on("end", async () => {
       if (config.PRUNING) {
         queueEmbed.delete().catch(() => null);
@@ -81,7 +81,7 @@ export default {
         queueEmbed.edit({
           content: queueEmbed.content,
           embeds: queueEmbed.embeds,
-          components : []
+          components: []
         });
       }
     });
@@ -109,4 +109,4 @@ function generateQueueEmbed(message: Message, songs: Song[]) {
   }
 
   return embeds;
-}
+};

@@ -7,10 +7,7 @@ export default {
   execute(message: Message) {
     return message
       .member!.send(
-        `https://discord.com/oauth2/authorize?client_id=${message.client.user!.id
-        }&permissions=70282305&scope=bot
-    `
-      )
-      .catch(console.error);
+        `https://discord.com/oauth2/authorize?client_id=${message.client.user!.id}&permissions=274897914880&scope=bot`
+      ).catch(console.error);
   }
 };

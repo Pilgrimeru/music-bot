@@ -3,7 +3,7 @@ import youtube, { Video } from "youtube-sr";
 import { bot } from "../index";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
+import { purning } from "../utils/tools";
 
 export default {
   name: "search",
@@ -19,20 +19,20 @@ export default {
 
     const search = args.join(" ");
 
-      let results: Video[] = [];
+    let results: Video[] = [];
 
-      const loadingReply = await message.reply(i18n.__mf("common.loading"));
+    const loadingReply = await message.reply(i18n.__mf("common.loading"));
 
-      try {
-        results = await youtube.search(search, { limit: 10, type: "video" });
-      } catch (error: any) {
-        console.error(error);
-        return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
-      } finally {
-        loadingReply.delete().catch(() => null);
-      }
-  
-      const options = results
+    try {
+      results = await youtube.search(search, { limit: 10, type: "video" });
+    } catch (error: any) {
+      console.error(error);
+      return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
+    } finally {
+      loadingReply.delete().catch(() => null);
+    }
+
+    const options = results
       .filter((video) => video.title != undefined && video.title != "Private video" && video.title != "Deleted video")
       .map((video) => {
         return {
@@ -40,36 +40,36 @@ export default {
           value: video.url
         };
       });
-      
-      if (options.length === 0)
-        return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
-  
-      const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
-        new StringSelectMenuBuilder()
-          .setCustomId("search-select")
-          .setPlaceholder(i18n.__("search.menuNothing"))
-          .setMinValues(0)
-          .setMaxValues(1)
-          .addOptions(options)
-      );
-  
-      const resultsMessage = await message.reply({
-        content: i18n.__("search.resultEmbedTitle"),
-        components: [row]
-      });
-  
-      resultsMessage
-        .awaitMessageComponent({
-          time: 30000
-        })
-        .then(async (selectInteraction) => {
-          if ((selectInteraction instanceof StringSelectMenuInteraction)) {
-            await selectInteraction.update({content : i18n.__("search.finished"), components: []}).catch(console.error);
-            bot.commands.get("play")!.execute(message, [selectInteraction.values[0]]);
-          }
-          config.PRUNING && resultsMessage.delete().catch(() => null);
-        })
-        .catch(() => resultsMessage.delete().catch(() => null));
-      
-    }
-  };
+
+    if (options.length === 0)
+      return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
+
+    const row = new ActionRowBuilder<StringSelectMenuBuilder>().addComponents(
+      new StringSelectMenuBuilder()
+        .setCustomId("search-select")
+        .setPlaceholder(i18n.__("search.menuNothing"))
+        .setMinValues(0)
+        .setMaxValues(1)
+        .addOptions(options)
+    );
+
+    const resultsMessage = await message.reply({
+      content: i18n.__("search.resultEmbedTitle"),
+      components: [row]
+    });
+
+    resultsMessage
+      .awaitMessageComponent({
+        time: 30000
+      })
+      .then(async (selectInteraction) => {
+        if ((selectInteraction instanceof StringSelectMenuInteraction)) {
+          await selectInteraction.update({ content: i18n.__("search.finished"), components: [] }).catch(console.error);
+          bot.commands.get("play")!.execute(message, [selectInteraction.values[0]]);
+        }
+        config.PRUNING && resultsMessage.delete().catch(() => null);
+      })
+      .catch(() => resultsMessage.delete().catch(() => null));
+
+  }
+};

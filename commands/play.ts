@@ -5,7 +5,7 @@ import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
+import { purning } from "../utils/tools";
 
 export default {
   name: "play",
@@ -41,7 +41,7 @@ export default {
     const url = (!args.length) ? message.attachments.first()?.url! : args[0];
     let type: string | false = await validate(url);
     if (!type && url.startsWith("https") && /\.(mp3|wav|flac|ogg)$/i.test(url)) {
-      type = "external_link"
+      type = "external_link";
     }
 
     // Start the playlist if playlist url was provided
@@ -79,24 +79,30 @@ export default {
 
     if (queue) {
       queue.enqueue(song);
+    } else {
+      const newQueue = new MusicQueue({
+        message,
+        connection: joinVoiceChannel({
+          channelId: channel.id,
+          guildId: channel.guild.id,
+          adapterCreator: channel.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator
+        })
+      });
 
-      return message
-        .reply(i18n.__mf("play.queueAdded", { title: song.title }))
-        .then(purning)
-        .catch(console.error);
+      bot.queues.set(message.guild!.id, newQueue);
+      newQueue.enqueue(song);
     }
 
-    const newQueue = new MusicQueue({
-      message,
-      connection: joinVoiceChannel({
-        channelId: channel.id,
-        guildId: channel.guild.id,
-        adapterCreator: channel.guild.voiceAdapterCreator as DiscordGatewayAdapterCreator
+    return message
+      .reply({
+        embeds: [{
+          description: i18n.__mf("play.queueAdded", {
+            title: song.title,
+            url: song.url
+          }),
+          color: 0x69adc7
+        }]
       })
-    });
-
-    bot.queues.set(message.guild!.id, newQueue);
-
-    newQueue.enqueue(song);
+      .then(purning);
   }
 };

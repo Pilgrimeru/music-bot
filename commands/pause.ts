@@ -1,8 +1,7 @@
-import { i18n } from "../utils/i18n";
-import { canModifyQueue } from "../utils/queue";
-import { bot } from "../index";
 import { Message } from "discord.js";
-import { purning } from "../utils/pruning";
+import { bot } from "../index";
+import { i18n } from "../utils/i18n";
+import { canModifyQueue, purning } from "../utils/tools";
 
 export default {
   name: "pause",

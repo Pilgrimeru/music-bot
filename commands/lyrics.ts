@@ -3,7 +3,7 @@ import { i18n } from "../utils/i18n";
 // @ts-ignore
 import lyricsFinder from "lyrics-finder";
 import { bot } from "../index";
-import { purning } from "../utils/pruning";
+import { purning } from "../utils/tools";
 
 export default {
   name: "lyrics",

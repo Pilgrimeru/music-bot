@@ -2,8 +2,7 @@ import move from "array-move";
 import { Message } from "discord.js";
 import { bot } from "../index";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
-import { canModifyQueue } from "../utils/queue";
+import { canModifyQueue, purning } from "../utils/tools";
 
 export default {
   name: "move",

@@ -2,8 +2,7 @@ import { Message } from "discord.js";
 import { bot } from "../index";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
-import { canModifyQueue } from "../utils/queue";
+import { canModifyQueue, purning } from "../utils/tools";
 
 const pattern = /^[1-9][0-9]{0,2}(\s*,\s*[1-9][0-9]{0,2})*$/;
 

@@ -2,8 +2,7 @@ import { EmbedBuilder, Message } from "discord.js";
 import { splitBar } from "string-progressbar";
 import { bot } from "../index";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
-import { formatTime } from "../utils/time";
+import { formatTime, purning } from "../utils/tools";
 
 export default {
   name: "nowplaying",
@@ -26,26 +25,26 @@ export default {
       .setColor("#69adc7")
       .setThumbnail(song.thumbnail);
 
-    
-      nowPlaying.addFields(
-        {
-          name: "\u200b",
-          value: formatTime(seek) +
-            " [" +
-            splitBar((song.duration == 0 ? seek : song.duration), seek, 15)[0] +
-            "] " +
-            (song.duration == 0 ? i18n.__mf("nowplaying.live") : formatTime(song.duration)),
-          inline: false
-        }
-      );
 
-      if (song.duration >= 1000) {
-        nowPlaying.setFooter({
-          text: i18n.__mf("nowplaying.timeRemaining", {
-            time: formatTime(left)
-          })
-        });
+    nowPlaying.addFields(
+      {
+        name: "\u200b",
+        value: formatTime(seek) +
+          " [" +
+          splitBar((song.duration == 0 ? seek : song.duration), seek, 15)[0] +
+          "] " +
+          (song.duration == 0 ? i18n.__mf("nowplaying.live") : formatTime(song.duration)),
+        inline: false
       }
+    );
+
+    if (song.duration >= 1000) {
+      nowPlaying.setFooter({
+        text: i18n.__mf("nowplaying.timeRemaining", {
+          time: formatTime(left)
+        })
+      });
+    }
 
     return message.reply({ embeds: [nowPlaying] }).then(msg => purning(msg, true));
   }

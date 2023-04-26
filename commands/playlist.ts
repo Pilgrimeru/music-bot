@@ -5,7 +5,7 @@ import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Playlist } from "../structs/Playlist";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
+import { purning } from "../utils/tools";
 
 export default {
   name: "playlist",
@@ -34,16 +34,16 @@ export default {
 
     if (queue && channel.id !== queue.connection.joinConfig.channelId)
       return message
-        .reply(i18n.__mf("play.errorNotInSameChannel", { user: message.client.user!.username }))
+        .reply(i18n.__mf("playlist.errorNotInSameChannel", { user: message.client.user!.username }))
         .then(purning);
 
-    const loadingReply = await message.reply(i18n.__mf("common.loading"));
-    
+    const loadingReply = await message.reply(i18n.__mf("playlist.fetchingPlaylist"));
+
     const url: string = args[0];
     let type: string | false = await validate(url);
 
-    let playlist : Playlist;
-    
+    let playlist: Playlist;
+
     try {
       if (type === "sp_playlist" || type === "sp_album") {
         playlist = await Playlist.fromSpotify(url);
@@ -80,7 +80,14 @@ export default {
 
     message
       .reply({
-        content: i18n.__mf("playlist.startedPlaylist"),
+        embeds: [{
+          description: i18n.__mf("playlist.startedPlaylist", {
+            title: playlist.title,
+            url: playlist.url,
+            length: playlist.songs.length
+          }),
+          color: 0x69adc7
+        }]
       })
       .then(purning);
   }

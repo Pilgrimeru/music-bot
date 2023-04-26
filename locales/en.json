@@ -42,12 +42,12 @@
   },
   "play": {
     "description": "Plays audio from YouTube or Spotify",
-    "errorNotChannel": "You need to join a voice channel first!",
+    "errorNotChannel": "You need to join a voice channel first.",
     "errorNotInSameChannel": "You must be in the same channel as {user}",
     "usageReply": "Usage: {prefix}play <YouTube URL | Video Name | Spotify URL>",
     "missingPermissionConnect": "Cannot connect to voice channel, missing permissions",
     "missingPermissionSpeak": "I cannot speak in this voice channel, make sure I have the proper permissions!",
-    "queueAdded": "✅ **{title}** has been added to the queue.",
+    "queueAdded": "✅ [**{title}**]({url}) has been added to the queue.",
     "cantJoinChannel": "Could not join the channel: {error}",
     "queueEnded": "Music queue ended.",
     "queueError": "Error: {error}",
@@ -69,14 +69,13 @@
   "playlist": {
     "description": "Play a playlist from youtube",
     "usagesReply": "Usage: {prefix}playlist <YouTube Playlist URL | Playlist Name>",
-    "errorNotChannel": "You need to join a voice channel first!",
+    "errorNotChannel": "You need to join a voice channel first.",
     "errorNotInSameChannel": "You must be in the same channel as {user}",
     "missingPermissionConnect": "Cannot connect to voice channel, missing permissions",
     "missingPermissionSpeak": "I cannot speak in this voice channel, make sure I have the proper permissions!",
     "errorNotFoundPlaylist": "Playlist not found :(",
-    "fetchingPlaylist": "⌛ fetching the playlist...",
-    "playlistCharLimit": "\nPlaylist larger than character limit...",
-    "startedPlaylist": "A playlist has been added to the queue.",
+    "fetchingPlaylist": "⌛ Fetching the playlist...",
+    "startedPlaylist": "✅ The playlist [**{title}**]({url}) ({length} tracks) has been added to the queue.",
     "cantJoinChannel": "Could not join the channel: {error}"
   },
   "pruning": {

@@ -8,6 +8,7 @@ import { MissingPermissionsException } from "../utils/MissingPermissionsExceptio
 import { PermissionResult, checkPermissions } from "../utils/checkPermissions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
+import { clearMemory } from "../utils/tools";
 import { MusicQueue } from "./MusicQueue";
 
 const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -32,7 +33,7 @@ export class Bot {
       setInterval(() => {
         client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: ActivityType.Listening });
       }, 1 * 3600 * 1000);
-
+      clearMemory();
     });
 
     this.client.on("warn", (info) => console.log(info));
@@ -42,8 +43,6 @@ export class Bot {
     this.onMessageCreate();
     this.soundcloudApiConnect();
   }
-
-
 
   public async spotifyApiConnect() {
     if (this.spotifyExpiration < Date.now()) {
@@ -58,7 +57,7 @@ export class Bot {
       soundcloud: {
         client_id: clientID
       }
-    }))
+    }));
   }
 
   private async importCommands() {

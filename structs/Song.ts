@@ -4,14 +4,14 @@ import { parseStream } from 'music-metadata';
 import { DeezerTrack, SoundCloudTrack, deezer, stream as getStream, so_validate, soundcloud, yt_validate } from "play-dl";
 import { Track, parse } from "spotify-uri";
 import youtube from "youtube-sr";
-import { bot } from "..";
+import { bot } from "../index";
 
 
 export interface SongData {
   url: string;
   title: string | undefined;
   duration: number;
-  thumbnail: string;
+  thumbnail: string | null;
 }
 
 export class Song {
@@ -21,7 +21,7 @@ export class Song {
   public readonly thumbnail: string;
 
   public constructor(options: SongData) {
-    Object.assign(this, options)
+    Object.assign(this, options);
   }
 
   public static async fromYoutube(url: string = "", search: string = ""): Promise<Song> {
@@ -80,7 +80,7 @@ export class Song {
       track = data as DeezerTrack;
     }
     let search = track ? track.artist.name + " " + track.title : "";
-    return await Song.fromYoutube("", search)
+    return await Song.fromYoutube("", search);
   }
 
   public static async fromExternalLink(url: string = ""): Promise<Song> {
@@ -90,17 +90,17 @@ export class Song {
 
       const response = await axios.get(url, {
         responseType: 'stream',
-      }).catch(() => null)
+      }).catch(() => null);
       if (!response) throw new Error("Bad link: " + url);
-      
-      let duration = (await parseStream(response.data, {mimeType: response.headers["content-type"], size: response.headers["content-length"]})).format.duration;
-      duration = duration ? Math.floor(duration) * 1000 : 1
+
+      let duration = (await parseStream(response.data, { mimeType: response.headers["content-type"], size: response.headers["content-length"] })).format.duration;
+      duration = duration ? Math.floor(duration) * 1000 : 1;
 
       return new this({
         url: url,
         title: name,
         duration: duration,
-        thumbnail: "https://discord.com/empty.jpg",
+        thumbnail: null,
       });
     }
     throw new Error("Bad link " + url);
@@ -119,15 +119,14 @@ export class Song {
           htmldata: false,
           precache: 30,
           quality: 0, //Quality number. [ 0 = Lowest, 1 = Medium, 2 = Highest ]
-        })
+        });
         stream = response.stream;
         type = response.type;
-
       } else {
 
         const response = await axios.get(this.url, {
           responseType: 'stream',
-        })
+        });
         stream = response.data;
         type = StreamType.Arbitrary;
       }
@@ -143,4 +142,4 @@ export class Song {
       console.error(error);
     }
   }
-}
+};

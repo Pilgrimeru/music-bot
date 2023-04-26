@@ -22,9 +22,7 @@ import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
-import { canModifyQueue } from "../utils/queue";
-import { formatTime } from "../utils/time";
+import { canModifyQueue, clearMemory, formatTime, purning } from "../utils/tools";
 import { Song } from "./Song";
 
 export class MusicQueue {
@@ -54,6 +52,7 @@ export class MusicQueue {
         noSubscriber: NoSubscriberBehavior.Pause
       }
     });
+    clearMemory();
 
     this.connection.on(VoiceConnectionStatus.Disconnected, async (_, disconnect) => {
       if (disconnect.reason == 0 || disconnect.reason == 3) return;
@@ -86,8 +85,8 @@ export class MusicQueue {
 
     this.bot.client.on("voiceStateUpdate", async (voice: VoiceState) => {
       setTimeout(() => {
-        let voiceChannel = voice.channel
-        let clientChannel = voice.guild.members.me!.voice.channelId
+        let voiceChannel = voice.channel;
+        let clientChannel = voice.guild.members.me!.voice.channelId;
         if (voiceChannel?.id === clientChannel) {
           let nbUser = voiceChannel?.members.filter(
             (member) => !member.user.bot
@@ -97,7 +96,7 @@ export class MusicQueue {
           }
         }
       }, 5000);
-    })
+    });
   }
 
   private skip() {
@@ -136,6 +135,7 @@ export class MusicQueue {
     this.nowPlayingCollector?.stop();
     this.player.stop();
     this.loop = false;
+    clearMemory();
 
     this.waitTimeout = setTimeout(() => {
       if (this.stopped) {
@@ -243,7 +243,7 @@ export class MusicQueue {
             .then(purning);
         }
         await b.deferUpdate();
-      })
+      });
 
       collector.on("end", () => {
         const msg = (collector.options.message as Message<boolean>);
@@ -265,6 +265,6 @@ export class MusicQueue {
           this.nowPlayingCollector = null;
         }
       });
-    } catch { console.error }
+    } catch { console.error; }
   }
 }

@@ -1,6 +1,6 @@
 {
   "name": "music-bot",
-  "version": "2.5.0",
+  "version": "2.6.0",
   "description": "Bot de music basé sur EvoBot avec des boutons et play-dl",
   "main": "index.ts",
   "author": "Pilgrimeru",
@@ -32,6 +32,7 @@
     "spotify-uri": "^3.0.3",
     "spotify-web-api-node": "^5.0.2",
     "string-progressbar": "^1.0.4",
+    "systeminformation": "^5.17.12",
     "ts-node": "^10.9.1",
     "youtube-sr": "^4.3.4"
   },

@@ -2,7 +2,7 @@ import { Message, TextChannel } from "discord.js";
 import { writeFile } from "fs";
 import { Config } from "../interfaces/Config";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/pruning";
+import { purning } from "../utils/tools";
 
 export default {
   name: "pruning",
