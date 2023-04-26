@@ -35,7 +35,7 @@ export class MusicQueue {
 
   public songs: Song[] = [];
   public volume = config.DEFAULT_VOLUME || 100;
-  public loop = false;
+  public loop : "queue" | "track" | false = false;
   public resource: AudioResource;
 
   private subscription: PlayerSubscription | undefined;
@@ -101,8 +101,9 @@ export class MusicQueue {
 
   private skip() {
     this.nowPlayingCollector?.stop();
-
-    if (this.loop && this.songs.length) {
+    if (this.loop === "track") {
+      this.processQueue();
+    } else if (this.loop === "queue") {
       this.enqueue(this.songs.shift()!);
     } else {
       this.songs.shift();

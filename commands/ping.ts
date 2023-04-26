@@ -4,7 +4,7 @@ import { purning } from "../utils/tools";
 
 export default {
   name: "ping",
-  cooldown: 10,
+  cooldown: 2,
   description: i18n.__("ping.description"),
   execute(message: Message) {
     message

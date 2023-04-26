@@ -8,7 +8,7 @@ import { MissingPermissionsException } from "../utils/MissingPermissionsExceptio
 import { PermissionResult, checkPermissions } from "../utils/checkPermissions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
-import { clearMemory } from "../utils/tools";
+import { clearMemory, purning } from "../utils/tools";
 import { MusicQueue } from "./MusicQueue";
 
 const escapeRegex = (str: string) => str.replace(/[.*+?^${}()|[\]\\]/g, "\\$&");
@@ -29,11 +29,11 @@ export class Bot {
 
     this.client.on("ready", () => {
       console.log(`${this.client.user!.username} ready!`);
+      clearMemory();
       client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: ActivityType.Listening });
       setInterval(() => {
         client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: ActivityType.Listening });
       }, 1 * 3600 * 1000);
-      clearMemory();
     });
 
     this.client.on("warn", (info) => console.log(info));
@@ -101,7 +101,7 @@ export class Bot {
 
         if (now < expirationTime) {
           const timeLeft = (expirationTime - now) / 1000;
-          return message.reply(i18n.__mf("common.cooldownMessage", { time: timeLeft.toFixed(1), name: command.name }));
+          return message.reply(i18n.__mf("common.cooldownMessage", { time: timeLeft.toFixed(1), name: command.name })).then(purning);
         }
       }
 
@@ -120,9 +120,9 @@ export class Bot {
         console.error(error);
 
         if (error.message.includes("permissions")) {
-          message.reply(error.toString()).catch(console.error);
+          message.reply(error.toString()).then(purning);
         } else {
-          message.reply(i18n.__("common.errorCommand")).catch(console.error);
+          message.reply(i18n.__("common.errorCommand")).then(purning);
         }
       }
     });

@@ -10,7 +10,8 @@
   "loop": {
     "description": "Mettre la musique en boucle.",
     "errorNotQueue": "Il n'y a rien à écouter.",
-    "result": "Loop est maintenant {loop}."
+    "resultEmbedTitle": "Choisissez le mode de boucle.",
+    "result": "La boucle est maintenant sur le mode : `{loop}`."
   },
   "lyrics": {
     "description": "Obtenir les paroles de la chanson en cours de lecture.",
@@ -41,10 +42,10 @@
     "result": "📈 Ping vers l'API: {ping} ms."
   },
   "play": {
-    "description": "Écoute de la musique depuis YouTube ou Spotify.",
+    "description": "Écoute de la musique depuis YouTube et d'autres sources.",
     "errorNotChannel": "Vous devez d'abord rejoindre un salon vocal.",
     "errorNotInSameChannel": "Vous devez être dans le même salon que {user}.",
-    "usageReply": "Utilisation: {prefix}play <URL YouTube | Nom de la vidéo | URL Spotify>",
+    "usageReply": "Utilisation: {prefix}play <URL de la video ou de l'audio | Nom de la vidéo>",
     "missingPermissionConnect": "Impossible de se connecter au salon vocal, autorisations manquantes.",
     "missingPermissionSpeak": "Je ne peux pas parler dans ce salon vocal, assurez-vous que j'ai les autorisations.",
     "queueAdded": "✅ [**{title}**]({url}) a été ajouté à la file d'attente.",
@@ -56,11 +57,6 @@
     "skipSong": "Musique passée. ⏩",
     "pauseSong": "La musique a été mis en pause. ⏸",
     "resumeSong": "La musique reprend. ▶",
-    "unmutedSong": "La musique a été unmute. 🔊",
-    "mutedSong": "La musique a été mute. 🔇",
-    "decreasedVolume": "Diminution du volume, le volume est maintenant à {volume}% 🔉",
-    "increasedVolume": "Augmentation du volume, le volume est maintenant à {volume}% 🔊",
-    "loopSong": "Loop est maintenant {loop}.",
     "stopSong": "Arrêt de la musique. ⏹",
     "leaveChannel": "Je quitte le salon vocal.",
     "songNotFound": "Audio introuvable.",
@@ -68,7 +64,7 @@
   },
   "playlist": {
     "description": "Écoute une playlist venant de YouTube.",
-    "usagesReply": "Utilisation: {prefix}playlist <URL de la playlist YouTube | Nom de la playlist>.",
+    "usagesReply": "Utilisation: {prefix}playlist <URL de la playlist | Nom de la playlist>.",
     "errorNotChannel": "Vous devez d'abord rejoindre un salon vocal !",
     "errorNotInSameChannel": "Vous devez être dans le même salon que {user}",
     "missingPermissionConnect": "Impossible de se connecter au salon vocal, autorisations manquantes.",

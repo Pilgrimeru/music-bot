@@ -10,7 +10,8 @@
   "loop": {
     "description": "Toggle music loop",
     "errorNotQueue": "There is nothing playing.",
-    "result": "Loop is now {loop}"
+    "resultEmbedTitle": "Choose the loop mode :",
+    "result": "Loop is now on the mode: `{loop}`."
   },
   "lyrics": {
     "description": "Get lyrics for the currently playing song",
@@ -41,10 +42,10 @@
     "result": "📈 Average ping to API: {ping} ms"
   },
   "play": {
-    "description": "Plays audio from YouTube or Spotify",
+    "description": "Plays audio from YouTube and other sources",
     "errorNotChannel": "You need to join a voice channel first.",
     "errorNotInSameChannel": "You must be in the same channel as {user}",
-    "usageReply": "Usage: {prefix}play <YouTube URL | Video Name | Spotify URL>",
+    "usageReply": "Usage: {prefix}play <Audio/Video URL | Video Name>",
     "missingPermissionConnect": "Cannot connect to voice channel, missing permissions",
     "missingPermissionSpeak": "I cannot speak in this voice channel, make sure I have the proper permissions!",
     "queueAdded": "✅ [**{title}**]({url}) has been added to the queue.",
@@ -56,19 +57,14 @@
     "skipSong": "Song skiped. ⏩",
     "pauseSong": "The music has been paused. ⏸",
     "resumeSong": "The music resumes. ▶",
-    "unmutedSong": "The music was unmuted. 🔊",
-    "mutedSong": "The music has been muted. 🔇",
-    "decreasedVolume": "Volume decreased, the volume is now at {volume}% 🔉",
-    "increasedVolume": "Volume increased, the volume is now at {volume}% 🔊",
-    "loopSong": "Loop is now {loop}",
     "stopSong": "Stop the music. ⏹",
     "leaveChannel": "Leaving voice channel...",
     "songNotFound": "Audio Not Found",
     "songAccessErr": "Video is age restricted, private or unavailable"
   },
   "playlist": {
-    "description": "Play a playlist from youtube",
-    "usagesReply": "Usage: {prefix}playlist <YouTube Playlist URL | Playlist Name>",
+    "description": "Play a playlist from YouTube and other sources",
+    "usagesReply": "Usage: {prefix}playlist <Playlist URL | Playlist Name>",
     "errorNotChannel": "You need to join a voice channel first.",
     "errorNotInSameChannel": "You must be in the same channel as {user}",
     "missingPermissionConnect": "Cannot connect to voice channel, missing permissions",
