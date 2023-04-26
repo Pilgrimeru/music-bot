@@ -39,7 +39,6 @@ export class MusicQueue {
   public resource: AudioResource;
 
   private subscription: PlayerSubscription | undefined;
-  private waitTimeout: NodeJS.Timeout | null;
   private nowPlayingCollector: any;
   private stopped = false;
 
@@ -119,10 +118,6 @@ export class MusicQueue {
 
   public enqueue(...songs: Song[]) {
     this.stopped = false;
-    if (this.waitTimeout) {
-      clearTimeout(this.waitTimeout);
-      this.waitTimeout = null;
-    }
     this.songs = this.songs.concat(songs);
     this.processQueue();
   }
@@ -138,8 +133,8 @@ export class MusicQueue {
     this.loop = false;
     clearMemory();
 
-    this.waitTimeout = setTimeout(() => {
-      if (this.stopped) {
+    setTimeout(() => {
+      if (!bot.queues.has(this.message.guild!.id)) {
         this.leave();
       }
     }, config.STAY_TIME * 1000);
