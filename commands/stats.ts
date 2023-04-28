@@ -16,7 +16,7 @@ export default {
     let sysCpuPer = Math.round((await si.fullLoad()) * 100) / 100;
     let usedRamPer = Math.round(((memory.active) / (memory.total)) * 10000) / 100;
     let freeRam = Math.round((memory.total - memory.active) / 1024 / 1024);
-    let nodeRamUsage = Math.round(memoryUsage().heapUsed / 1024 / 1024);
+    let nodeRamUsage = Math.round(memoryUsage().heapTotal / 1024 / 1024);
 
     let embed = new EmbedBuilder()
       .setTitle("Stats of " + bot.client.user?.username)
