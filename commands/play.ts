@@ -1,11 +1,10 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
 import { Message, PermissionsBitField } from "discord.js";
-import { validate } from "play-dl";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/tools";
+import { purning, validate } from "../utils/tools";
 
 export default {
   name: "play",
@@ -40,12 +39,9 @@ export default {
 
     const url = (!args.length) ? message.attachments.first()?.url! : args[0];
     let type: string | false = await validate(url);
-    if (!type && url.startsWith("https") && /\.(mp3|wav|flac|ogg)$/i.test(url)) {
-      type = "external_link";
-    }
 
     // Start the playlist if playlist url was provided
-    if (type.toString().match(/playlist|album/)) {
+    if (type.toString().match(/playlist|album|artist/)) {
       loadingReply.delete().catch(() => null);
       return bot.commands.get("playlist")!.execute(message, args);
     }
@@ -63,7 +59,7 @@ export default {
         case "dz_track":
           song = await Song.fromDeezer(url);
           break;
-        case "external_link":
+        case "audio":
           song = await Song.fromExternalLink(url);
           break;
         default:

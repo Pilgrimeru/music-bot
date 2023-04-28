@@ -1,11 +1,10 @@
 import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice";
 import { Message, PermissionsBitField } from "discord.js";
-import { validate } from "play-dl";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
 import { Playlist } from "../structs/Playlist";
 import { i18n } from "../utils/i18n";
-import { purning } from "../utils/tools";
+import { purning, validate } from "../utils/tools";
 
 export default {
   name: "playlist",
@@ -45,7 +44,7 @@ export default {
     let playlist: Playlist;
 
     try {
-      if (type === "sp_playlist" || type === "sp_album") {
+      if (type === "sp_playlist" || type === "sp_album" || type === "sp_artist") {
         playlist = await Playlist.fromSpotify(url);
       } else if (type === "so_playlist") {
         playlist = await Playlist.fromSoundcloud(url);
