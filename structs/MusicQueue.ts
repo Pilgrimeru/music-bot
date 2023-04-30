@@ -54,7 +54,7 @@ export class MusicQueue {
     clearMemory();
 
     this.connection.on(VoiceConnectionStatus.Disconnected, async (_, disconnect) => {
-      if (disconnect.reason == 0 || disconnect.reason == 3) return;
+      if (disconnect.reason == 0 || disconnect.reason == 3) return this.stop();
       try {
         this.connection.configureNetworking();
         this.connection.rejoin();

@@ -86,7 +86,7 @@ export class Playlist {
   public static async fromSpotify(url: string): Promise<Playlist> {
 
     let playlistPreview = await getPreview(url);
-    if (playlistPreview.type === "episode" || playlistPreview.type === "track")
+    if (!playlistPreview.type ||playlistPreview.type === "episode" || playlistPreview.type === "track")
       throw new Error("Playlist not found : " + url);
     let playlistTracks = await getTracks(url);
 

@@ -48,15 +48,18 @@ export async function validate(url: string): Promise<string | false> {
   const AUDIO_LINK = /^https?:\/\/.+\.(mp3|wav|flac|ogg)$/;
 
   if (!url.startsWith("https")) return false;
-
+  let check;
   if (url.match(YT_LINK)) {
-    return yt_validate(url);
+    check = yt_validate(url);
+    return check !== false ? ('yt_' + check) : false;
   }
   if (url.match(SO_LINK)) {
-    return await so_validate(url);
+    check = await so_validate(url);
+    return check !== false ? ('so_' + check) : false;
   }
   if (url.match(SP_LINK)) {
-    let type = sp_validate(url);
+    check = sp_validate(url);
+    let type = check !== false ? ('sp_' + check) : false;
     if (type) return type;
     const SP_ARTIST = /^https?:\/\/(?:open|play)\.spotify\.com\/artist\/?.+/;
     if (url.match(SP_ARTIST)) return "sp_artist";
