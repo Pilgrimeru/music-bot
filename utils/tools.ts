@@ -41,8 +41,8 @@ export async function clearMemory() {
 }
 
 export async function validate(url: string): Promise<string | false> {
-  const YT_LINK = /^(https?\:\/\/)?(www\.youtube\.com|youtu\.be)\/.+$/;
-  const SO_LINK = /^https?:\/\/soundcloud\.com\/?.+/;
+  const YT_LINK = /^((?:https?:)?\/\/)?(?:(?:www|m|music)\.)?((?:youtube\.com|youtu.be))\/.+$/;
+  const SO_LINK = /^(?:(https?):\/\/)?(?:(?:www|m)\.)?(api\.soundcloud\.com|soundcloud\.com|snd\.sc)\/.+$/;
   const SP_LINK = /^https?:\/\/(?:open|play)\.spotify\.com\/?.+/;
   const DZ_LINK = /^https?:\/\/(?:www\.)?(?:deezer\.com|deezer\.page\.link)\/?.+/;
   const AUDIO_LINK = /^https?:\/\/.+\.(mp3|wav|flac|ogg)$/;
