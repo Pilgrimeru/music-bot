@@ -3,7 +3,6 @@ import {
   AudioPlayerStatus,
   AudioResource,
   NoSubscriberBehavior,
-  PlayerSubscription,
   VoiceConnection,
   VoiceConnectionStatus,
   createAudioPlayer,
@@ -38,7 +37,6 @@ export class MusicQueue {
   public loop : "queue" | "track" | false = false;
   public resource: AudioResource;
 
-  private subscription: PlayerSubscription | undefined;
   private nowPlayingCollector: any;
   private stopped = false;
 
@@ -51,10 +49,12 @@ export class MusicQueue {
         noSubscriber: NoSubscriberBehavior.Pause
       }
     });
+    this.connection.subscribe(this.player);
     clearMemory();
 
-    this.connection.on(VoiceConnectionStatus.Disconnected, async (_, disconnect) => {
-      if (disconnect.reason == 0 || disconnect.reason == 3) return this.stop();
+    this.connection.on(VoiceConnectionStatus.Disconnected, async (_, disconnection) => {
+      if ((disconnection.reason == 0 && disconnection.closeCode == 4014) || disconnection.reason == 3)
+        return this.stop();
       try {
         this.connection.configureNetworking();
         this.connection.rejoin();
@@ -63,6 +63,7 @@ export class MusicQueue {
           entersState(this.connection, VoiceConnectionStatus.Connecting, 5_000),
         ]);
       } catch (error) {
+        console.error(error);
         this.leave();
       }
     });
@@ -72,9 +73,10 @@ export class MusicQueue {
     });
 
     this.player.on(AudioPlayerStatus.AutoPaused, () => {
-      this.subscription = this.connection?.subscribe(this.player);
-      if (this.subscription)
-        this.subscription.player.on('error', console.error);
+      if (!this.stopped) {
+        this.connection.subscribe(this.player);
+        this.connection.configureNetworking();
+      }
     });
 
     this.player.on("error", (error) => {
@@ -131,6 +133,7 @@ export class MusicQueue {
     this.nowPlayingCollector?.stop();
     this.player.stop();
     this.loop = false;
+    this.resource?.playStream?.destroy();
     clearMemory();
 
     setTimeout(() => {
