@@ -39,24 +39,16 @@ export default {
     const loadingReply = await message.reply(i18n.__mf("playlist.fetchingPlaylist"));
 
     const url: string = args[0];
-    let type: string | false = await validate(url);
+    const type: string | false = await validate(url);
 
     let playlist: Playlist;
 
     try {
-      if (type === "sp_playlist" || type === "sp_album" || type === "sp_artist") {
-        playlist = await Playlist.fromSpotify(url);
-      } else if (type === "so_playlist") {
-        playlist = await Playlist.fromSoundcloud(url);
-      } else if (type === "dz_playlist" || type === "dz_album") {
-        playlist = await Playlist.fromDeezer(url);
-      } else {
-        let search = args.join(" ");
-        playlist = await Playlist.fromYoutube(url, search);
-      }
+      const search = args.join(" ");
+      playlist = await Playlist.from(url, search, type.toString());
     } catch (error) {
       console.error(error);
-      return message.reply(i18n.__("playlist.errorNotFoundPlaylist")).then(purning);
+      return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
     } finally {
       loadingReply.delete().catch(() => null);
     }

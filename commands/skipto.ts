@@ -19,18 +19,14 @@ export default {
 
     if (!canModifyQueue(message.member!)) return i18n.__("common.errorNotChannel");
 
-    if (args[0] > queue.songs.length)
+    if (queue.loop == "track") queue.loop = false;
+
+    if (args[0] < 1 && args[0] > queue.songs.length - queue.index)
       return message
         .reply(i18n.__mf("skipto.errorNotValid", { length: queue.songs.length }))
         .then(purning);
 
-    if (queue.loop) {
-      for (let i = 0; i < args[0] - 1; i++) {
-        queue.songs.push(queue.songs.shift()!);
-      }
-    } else {
-      queue.songs = queue.songs.slice(args[0] - 1);
-    }
+    queue.index += args[0] - 1;
 
     queue.player.stop();
 

@@ -1,4 +1,4 @@
-import { ActivityType, Client, Collection, Snowflake } from "discord.js";
+import { ActivityType, Client, Collection, Snowflake, VoiceState } from "discord.js";
 import { readdirSync } from "fs";
 import { join } from "path";
 import { getFreeClientID, setToken } from "play-dl";
@@ -27,11 +27,28 @@ export class Bot {
       client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: ActivityType.Listening });
       setInterval(() => {
         client.user!.setActivity(`${this.prefix}help and ${this.prefix}play`, { type: ActivityType.Listening });
+        clearMemory();
       }, 1 * 3600 * 1000);
     });
 
     this.client.on("warn", (info) => console.log(info));
     this.client.on("error", console.error);
+
+    this.client.on("voiceStateUpdate", async (voice: VoiceState) => {
+      setTimeout(() => {
+        const voiceChannel = voice.channel;
+        const clientChannel = voice.guild.members.me!.voice.channelId;
+        if (voiceChannel?.id === clientChannel) {
+          let nbUser = voiceChannel?.members.filter(
+            (member) => !member.user.bot
+          );
+          if (nbUser?.size === 0) {
+            const queue = this.queues.get(voice.guild.id);
+            queue?.leave();
+          }
+        }
+      }, config.STAY_TIME * 1000);
+    });
 
     this.importCommands();
     this.onMessageCreate();

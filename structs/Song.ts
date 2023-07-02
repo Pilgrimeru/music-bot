@@ -1,9 +1,12 @@
 import { AudioResource, StreamType, createAudioResource } from "@discordjs/voice";
 import axios from 'axios';
+import { APIEmbed, EmbedBuilder } from "discord.js";
 import fetch from 'isomorphic-unfetch';
 import { parseStream } from 'music-metadata';
 import { DeezerTrack, SoundCloudTrack, deezer, stream as getStream, so_validate, soundcloud, yt_validate } from "play-dl";
 import youtube from "youtube-sr";
+import { formatTime } from "../utils/tools";
+import { i18n } from "../utils/i18n";
 const { getPreview } = require('spotify-url-info')(fetch);
 
 
@@ -22,6 +25,21 @@ export class Song {
 
   public constructor(options: SongData) {
     Object.assign(this, options);
+  }
+
+  public static async from(url: string, search: string, type: string): Promise<Song> {
+    switch (type) {
+      case "sp_track":
+        return await Song.fromSpotify(url);
+      case "so_track":
+        return await Song.fromSoundCloud(url);
+      case "dz_track":
+        return await Song.fromDeezer(url);
+      case "audio":
+        return await Song.fromExternalLink(url);
+      default:
+        return await Song.fromYoutube(url, search);
+    }
   }
 
   public static async fromYoutube(url: string = "", search: string = ""): Promise<Song> {
@@ -102,6 +120,25 @@ export class Song {
       });
     }
     throw new Error("Bad link " + url);
+  }
+  
+  public formatedTime() : string {
+    if (this.duration == 0) {
+      return i18n.__mf("nowplaying.live");
+    }
+    return formatTime(this.duration);
+  }
+
+  public playingEmbed() : EmbedBuilder {
+    return new EmbedBuilder({
+      title: i18n.__mf("play.startedPlaying"),
+      description: `[${this.title}](${this.url})
+      ${i18n.__mf("play.duration", " ")}\`${this.formatedTime()}\``,
+      thumbnail: {
+        url: this.thumbnail
+      },
+      color: 0x69adc7
+    });
   }
 
   public async makeResource(): Promise<AudioResource<Song> | void> {

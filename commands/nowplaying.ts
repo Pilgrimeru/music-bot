@@ -12,7 +12,7 @@ export default {
   execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue || !queue.songs.length)
+    if (!queue)
       return message.reply(i18n.__("nowplaying.errorNotQueue")).catch(console.error);
 
     const song = queue.songs[0];

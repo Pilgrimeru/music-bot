@@ -18,11 +18,11 @@ export default {
     if (!args.length || isNaN(args[0]) || args[0] < 1)
       return message.reply(i18n.__mf("move.usagesReply", { prefix: bot.prefix })).then(purning);
 
-    if (!args[1]) args[1] = 1;
+    if (!args[1]) args[1] = queue.index + 1;
 
-    let song = queue.songs[args[0]];
+    let song = queue.songs[Number(args[0]) + queue.index];
 
-    queue.songs = move(queue.songs, args[0], args[1]);
+    queue.songs = move(queue.songs, queue.index + Number(args[0]), queue.index + Number(args[1]));
 
     queue.textChannel.send(
       i18n.__mf("move.result", {

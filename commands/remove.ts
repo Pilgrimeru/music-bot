@@ -25,9 +25,8 @@ export default {
 
     if (pattern.test(removeArgs)) {
       let removed: Song[] = [];
-
       queue.songs = queue.songs.filter((item, index) => {
-        if (songs.find((songIndex) => songIndex === index)) removed.push(item);
+        if (songs.find((songIndex) => Number(songIndex) + queue.index === index)) removed.push(item);
         else return true;
       });
 
@@ -39,7 +38,7 @@ export default {
     } else if (!isNaN(args[0]) && args[0] >= 1 && args[0] < queue.songs.length) {
       return queue.textChannel.send(
         i18n.__mf("remove.result", {
-          title: queue.songs.splice(args[0], 1)[0].title
+          title: queue.songs[args[0] - 1].title
         })
       ).then(purning);
     } else {

@@ -15,13 +15,12 @@ import {
   Message,
   PermissionsBitField,
   TextChannel,
-  VoiceState,
 } from "discord.js";
 import { bot } from "../index";
 import { QueueOptions } from "../interfaces/QueueOptions";
 import { config } from "../utils/config";
 import { i18n } from "../utils/i18n";
-import { canModifyQueue, clearMemory, formatTime, purning } from "../utils/tools";
+import { canModifyQueue, clearMemory, purning } from "../utils/tools";
 import { Song } from "./Song";
 
 export class MusicQueue {
@@ -30,11 +29,10 @@ export class MusicQueue {
   public readonly connection: VoiceConnection;
   public readonly player: AudioPlayer;
   private readonly message: Message;
-  private readonly bot = bot;
-
+  public index: number = 0;
   public songs: Song[] = [];
   public volume = config.DEFAULT_VOLUME || 100;
-  public loop : "queue" | "track" | false = false;
+  public loop: "queue" | "track" | false = false;
   public resource: AudioResource;
 
   private nowPlayingCollector: any;
@@ -57,7 +55,6 @@ export class MusicQueue {
         return this.stop();
       try {
         this.connection.configureNetworking();
-        this.connection.rejoin();
         await Promise.race([
           entersState(this.connection, VoiceConnectionStatus.Signalling, 5_000),
           entersState(this.connection, VoiceConnectionStatus.Connecting, 5_000),
@@ -73,10 +70,9 @@ export class MusicQueue {
     });
 
     this.player.on(AudioPlayerStatus.AutoPaused, () => {
-      if (!this.stopped) {
-        this.connection.subscribe(this.player);
+      if (!this.stopped)
         this.connection.configureNetworking();
-      }
+      this.connection.subscribe(this.player);
     });
 
     this.player.on("error", (error) => {
@@ -84,32 +80,18 @@ export class MusicQueue {
       this.skip();
     });
 
-    this.bot.client.on("voiceStateUpdate", async (voice: VoiceState) => {
-      setTimeout(() => {
-        let voiceChannel = voice.channel;
-        let clientChannel = voice.guild.members.me!.voice.channelId;
-        if (voiceChannel?.id === clientChannel) {
-          let nbUser = voiceChannel?.members.filter(
-            (member) => !member.user.bot
-          );
-          if (nbUser?.size === 0) {
-            this.leave();
-          }
-        }
-      }, 5000);
-    });
   }
 
   private skip() {
     this.nowPlayingCollector?.stop();
     if (this.loop === "track") {
       this.processQueue();
-    } else if (this.loop === "queue") {
-      this.enqueue(this.songs.shift()!);
+    } else if (this.index !== this.songs.length - 1) {
+      this.index++;
+      this.processQueue();
     } else {
-      this.songs.shift();
-
-      if (this.songs.length) {
+      if (this.loop === "queue") {
+        this.index = 0;
         this.processQueue();
       } else if (!this.stopped) {
         this.textChannel.send(i18n.__("play.queueEnded")).then(purning);
@@ -145,6 +127,8 @@ export class MusicQueue {
 
   public leave() {
     this.stop();
+    this.connection.removeAllListeners();
+    this.player.removeAllListeners();
     if (this.connection.state.status != VoiceConnectionStatus.Destroyed) {
       this.connection.destroy();
       this.textChannel.send(i18n.__("play.leaveChannel")).then(purning);
@@ -152,11 +136,12 @@ export class MusicQueue {
   }
 
   private async processQueue(): Promise<void> {
-    if (this.player.state.status != AudioPlayerStatus.Idle) {
+
+    if (this.player.state.status != AudioPlayerStatus.Idle || this.stopped) {
       return;
     }
-
-    const next = this.songs[0];
+    
+    const next = this.songs[this.index];
 
     try {
       const resource = await next.makeResource();
@@ -181,6 +166,12 @@ export class MusicQueue {
           .setStyle(ButtonStyle.Secondary),
 
         new ButtonBuilder()
+          .setCustomId("previous")
+          .setEmoji("⏮")
+          .setStyle(ButtonStyle.Secondary)
+          .setDisabled(this.index === 0),
+
+        new ButtonBuilder()
           .setCustomId("pause")
           .setEmoji("⏸")
           .setStyle(ButtonStyle.Secondary),
@@ -191,26 +182,9 @@ export class MusicQueue {
           .setStyle(ButtonStyle.Secondary)
       );
 
-      let time: string;
-      if (song.duration == 0) {
-        time = i18n.__mf("nowplaying.live");
-      } else {
-        time = formatTime(song.duration);
-      }
-
       const nowPlayingMsg = await this.textChannel.send({
-        embeds: [
-          {
-            title: i18n.__mf("play.startedPlaying"),
-            description: `[${song.title}](${song.url})
-            ${i18n.__mf("play.duration", " ")}\`${time}\``,
-            thumbnail: {
-              url: song.thumbnail,
-            },
-            color: 0x69adc7
-          }
-        ],
-        components: [row],
+        embeds: [song.playingEmbed()],
+        components: [row]
       });
 
       const collector = nowPlayingMsg.createMessageComponentCollector();
@@ -218,17 +192,23 @@ export class MusicQueue {
 
       collector.on("collect", async (b) => {
         const interactUser = await this.textChannel.guild.members.fetch(b.user);
-        const permission = this.textChannel.permissionsFor(interactUser).has(PermissionsBitField.Flags.SendMessages, true);
+        const canWrite = this.textChannel.permissionsFor(interactUser).has(PermissionsBitField.Flags.SendMessages, true);
 
         if (canModifyQueue(interactUser)) {
-          if (b.customId === "stop" && permission) {
+          if (b.customId === "stop" && canWrite) {
             this.stop();
             this.textChannel.send(i18n.__("stop.result")).then(purning);
           }
-          if (b.customId === "skip" && permission) {
+          else if (b.customId === "skip" && canWrite) {
+            if (this.loop == "track") this.loop = false;
             this.player.stop(true);
           }
-          if (b.customId === "pause" && permission) {
+          if (b.customId === "previous" && canWrite) {
+            if (this.loop == "track") this.loop = false;
+            this.index -= 2;
+            this.player.stop(true);
+          }
+          if (b.customId === "pause" && canWrite) {
             if (this.player.state.status == AudioPlayerStatus.Playing) {
               this.player.pause();
               this.textChannel.send(i18n.__mf("pause.result")).then(purning);

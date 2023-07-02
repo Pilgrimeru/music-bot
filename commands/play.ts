@@ -2,6 +2,7 @@ import { DiscordGatewayAdapterCreator, joinVoiceChannel } from "@discordjs/voice
 import { Message, PermissionsBitField } from "discord.js";
 import { bot } from "../index";
 import { MusicQueue } from "../structs/MusicQueue";
+import { Playlist } from "../structs/Playlist";
 import { Song } from "../structs/Song";
 import { i18n } from "../utils/i18n";
 import { purning, validate } from "../utils/tools";
@@ -38,43 +39,29 @@ export default {
     const loadingReply = await message.reply(i18n.__mf("common.loading"));
 
     const url = (!args.length) ? message.attachments.first()?.url! : args[0];
-    let type: string | false = await validate(url);
+    const type: string | false = await validate(url);
+    const search = args.join(" ");
+    let songs: Song[] = [];
 
     // Start the playlist if playlist url was provided
-    if (type.toString().match(/playlist|album|artist/)) {
-      loadingReply.delete().catch(() => null);
-      return bot.commands.get("playlist")!.execute(message, args);
-    }
-
-    let song: Song;
+    let playlist: Playlist | undefined = undefined;
     try {
-
-      switch (type) {
-        case "sp_track":
-          song = await Song.fromSpotify(url);
-          break;
-        case "so_track":
-          song = await Song.fromSoundCloud(url);
-          break;
-        case "dz_track":
-          song = await Song.fromDeezer(url);
-          break;
-        case "audio":
-          song = await Song.fromExternalLink(url);
-          break;
-        default:
-          let search = args.join(" ");
-          song = await Song.fromYoutube(url, search);
+      if (type.toString().match(/playlist|album|artist/)) {
+        loadingReply.edit(i18n.__mf("playlist.fetchingPlaylist"));
+        playlist = await Playlist.from(url, search, type.toString());
+        songs = playlist.songs;
+      } else {
+        songs.push(await Song.from(url, search, type.toString()));
       }
     } catch (error) {
       console.error(error);
       return message.reply(i18n.__("common.errorCommand")).then(msg => purning(msg));
     } finally {
-      await loadingReply.delete().catch(() => null);
+      loadingReply.delete().catch(() => null);
     }
 
     if (queue) {
-      queue.enqueue(song);
+      queue.enqueue(...songs);
     } else {
       const newQueue = new MusicQueue({
         message,
@@ -86,19 +73,32 @@ export default {
       });
 
       bot.queues.set(message.guild!.id, newQueue);
-      newQueue.enqueue(song);
+      newQueue.enqueue(...songs);
     }
 
-    return message
-      .reply({
+    if (playlist) {
+      message.reply({
         embeds: [{
-          description: i18n.__mf("play.queueAdded", {
-            title: song.title,
-            url: song.url
+          description: i18n.__mf("playlist.startedPlaylist", {
+            title: playlist.title,
+            url: playlist.url,
+            length: playlist.songs.length
           }),
           color: 0x69adc7
         }]
       })
-      .then(purning);
+        .then(purning);
+    } else {
+      return message.reply({
+        embeds: [{
+          description: i18n.__mf("play.queueAdded", {
+            title: songs[0].title,
+            url: songs[0].url
+          }),
+          color: 0x69adc7
+        }]
+      })
+        .then(purning);
+    }
   }
 };

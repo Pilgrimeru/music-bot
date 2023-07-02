@@ -13,7 +13,9 @@ export default {
     if (!queue) return message.reply(i18n.__("skip.errorNotQueue")).then(purning);
 
     if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(purning);
-
+    
+    if (queue.loop == "track") queue.loop = false;
+    
     queue.player.stop(true);
 
     queue.textChannel.send(i18n.__mf("skip.result")).then(purning);

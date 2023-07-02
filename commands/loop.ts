@@ -26,7 +26,7 @@ export default {
 
       new ButtonBuilder()
         .setCustomId("false")
-        .setEmoji("🚫")
+        .setEmoji("🛑")
         .setStyle(ButtonStyle.Secondary)
     );
 
@@ -42,14 +42,14 @@ export default {
       .then(async (selectInteraction) => {
         if ((selectInteraction instanceof ButtonInteraction)) {
           if (selectInteraction.customId === "queue") {
-            queue.loop = "queue"
+            queue.loop = "queue";
           } else if (selectInteraction.customId === "track") {
-            queue.loop = "track"
+            queue.loop = "track";
           } else {
             queue.loop = false;
           }
         }
-        selectInteraction.update({content: i18n.__mf("loop.result", { loop: queue.loop}), components: []});
+        selectInteraction.update({ content: i18n.__mf("loop.result", { loop: queue.loop }), components: [] });
       })
       .catch(() => resultsMessage.delete().catch(() => null));
 

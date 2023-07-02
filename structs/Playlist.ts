@@ -20,6 +20,19 @@ export class Playlist {
     Object.assign(this, options);
   }
 
+  public static async from(url: string = "", search: string = "", type: string): Promise<Playlist> {
+    if (type === "sp_playlist" || type === "sp_album" || type === "sp_artist") {
+      return await Playlist.fromSpotify(url);
+    }
+    if (type === "so_playlist") {
+      return await Playlist.fromSoundcloud(url);
+    }
+    if (type === "dz_playlist" || type === "dz_album") {
+      return await Playlist.fromDeezer(url);
+    }
+    return await Playlist.fromYoutube(url, search);
+  }
+
   private static getSongsFromYoutube(playlist: Video[]): Song[] {
 
     let songs = playlist
@@ -86,7 +99,7 @@ export class Playlist {
   public static async fromSpotify(url: string): Promise<Playlist> {
 
     let playlistPreview = await getPreview(url);
-    if (!playlistPreview.type ||playlistPreview.type === "episode" || playlistPreview.type === "track")
+    if (!playlistPreview.type || playlistPreview.type === "episode" || playlistPreview.type === "track")
       throw new Error("Playlist not found : " + url);
     let playlistTracks = await getTracks(url);
 

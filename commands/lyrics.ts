@@ -12,10 +12,10 @@ export default {
   async execute(message: Message) {
     const queue = bot.queues.get(message.guild!.id);
 
-    if (!queue || !queue.songs.length) return message.reply(i18n.__("lyrics.errorNotQueue")).then(purning);
+    if (!queue) return message.reply(i18n.__("lyrics.errorNotQueue")).then(purning);
 
     let lyrics = null;
-    const title = queue.songs[0].title;
+    const title = queue.songs[queue.index].title;
 
     try {
       lyrics = await lyricsFinder(queue.songs[0].title, "");

@@ -1,155 +1,163 @@
 {
-  "help": {
-    "description": "Display all commands and descriptions",
-    "embedTitle": "{botname} Help",
-    "embedDescription": "List of all commands"
+	"help": {
+		"description": "Display all commands and descriptions",
+		"embedTitle": "{botname} Help",
+		"embedDescription": "List of all commands"
+	},
+	"invite": {
+		"description": "Send bot invite link"
+	},
+	"loop": {
+		"description": "Toggle music loop",
+		"errorNotQueue": "There is nothing playing.",
+		"resultEmbedTitle": "Choose the loop mode :",
+		"result": "Loop is now on the mode: `{loop}`."
+	},
+	"lyrics": {
+		"description": "Get lyrics for the currently playing song",
+		"errorNotQueue": "There is nothing playing.",
+		"lyricsNotFound": "No lyrics found for {title}.",
+		"embedTitle": "{title} - Lyrics"
+	},
+	"move": {
+		"description": "Move songs around in the queue",
+		"errorNotQueue": "There is no queue.",
+		"usagesReply": "Usage : {prefix}move <From number in the queue> <To number in the queue>",
+		"result": "The track **\"{title}\"** has been moved to {index} in the queue."
+	},
+	"nowplaying": {
+		"description": "Show now playing song",
+		"errorNotQueue": "There is nothing playing.",
+		"embedTitle": "**Now playing** ♪",
+		"live": " ◉ LIVE",
+		"timeRemaining": "Time Remaining: {time}"
+	},
+	"pause": {
+		"description": "Pause the currently playing music",
+		"errorNotQueue": "There is nothing playing.",
+		"result": "The music has been paused. ⏸"
+	},
+	"ping": {
+		"description": "Show the bot's average ping",
+		"result": "📈 Average ping to API: {ping} ms"
+	},
+	"play": {
+		"description": "Plays audio from YouTube and other sources",
+		"errorNotChannel": "You need to join a voice channel first.",
+		"errorNotInSameChannel": "You must be in the same channel as {user}",
+		"usageReply": "Usage: {prefix}play <Audio/Video URL | Video Name>",
+		"missingPermissionConnect": "Cannot connect to voice channel, missing permissions",
+		"missingPermissionSpeak": "I cannot speak in this voice channel, make sure I have the proper permissions!",
+		"queueAdded": "✅ [**{title}**]({url}) has been added to the queue.",
+		"cantJoinChannel": "Could not join the channel: {error}",
+		"queueEnded": "Music queue ended.",
+		"queueError": "Error: {error}",
+		"startedPlaying": "▶ **Now Playing** ♪",
+		"duration": "Duration : ",
+		"skipSong": "Song skiped. ⏩",
+		"pauseSong": "The music has been paused. ⏸",
+		"resumeSong": "The music resumes. ▶",
+		"stopSong": "Stop the music. ⏹",
+		"leaveChannel": "Leaving voice channel...",
+		"songNotFound": "Audio Not Found",
+		"songAccessErr": "Video is age restricted, private or unavailable"
+	},
+	"playlist": {
+		"description": "Play a playlist from YouTube and other sources",
+		"usagesReply": "Usage: {prefix}playlist <Playlist URL | Playlist Name>",
+		"errorNotChannel": "You need to join a voice channel first.",
+		"errorNotInSameChannel": "You must be in the same channel as {user}",
+		"missingPermissionConnect": "Cannot connect to voice channel, missing permissions",
+		"missingPermissionSpeak": "I cannot speak in this voice channel, make sure I have the proper permissions!",
+		"errorNotFoundPlaylist": "Playlist not found :(",
+		"fetchingPlaylist": "⌛ Fetching the playlist...",
+		"startedPlaylist": "✅ The playlist [**{title}**]({url}) ({length} tracks) has been added to the queue.",
+		"cantJoinChannel": "Could not join the channel: {error}"
+	},
+  "insert": {
+    "description": "Inserts a song at the beginning of the queue",
+    "errorNotQueue": "There is no queue."
   },
-  "invite": {
-    "description": "Send bot invite link"
-  },
-  "loop": {
-    "description": "Toggle music loop",
-    "errorNotQueue": "There is nothing playing.",
-    "resultEmbedTitle": "Choose the loop mode :",
-    "result": "Loop is now on the mode: `{loop}`."
-  },
-  "lyrics": {
-    "description": "Get lyrics for the currently playing song",
-    "errorNotQueue": "There is nothing playing.",
-    "lyricsNotFound": "No lyrics found for {title}.",
-    "embedTitle": "{title} - Lyrics"
-  },
-  "move": {
-    "description": "Move songs around in the queue",
-    "errorNotQueue": "There is no queue.",
-    "usagesReply": "Usage : {prefix}move <From number in the queue> <To number in the queue>",
-    "result": "The track **\"{title}\"** has been moved to {index} in the queue."
-  },
-  "nowplaying": {
-    "description": "Show now playing song",
-    "errorNotQueue": "There is nothing playing.",
-    "embedTitle": "**Now playing** ♪",
-    "live": " ◉ LIVE",
-    "timeRemaining": "Time Remaining: {time}"
-  },
-  "pause": {
-    "description": "Pause the currently playing music",
-    "errorNotQueue": "There is nothing playing.",
-    "result": "The music has been paused. ⏸"
-  },
-  "ping": {
-    "description": "Show the bot's average ping",
-    "result": "📈 Average ping to API: {ping} ms"
-  },
-  "play": {
-    "description": "Plays audio from YouTube and other sources",
-    "errorNotChannel": "You need to join a voice channel first.",
-    "errorNotInSameChannel": "You must be in the same channel as {user}",
-    "usageReply": "Usage: {prefix}play <Audio/Video URL | Video Name>",
-    "missingPermissionConnect": "Cannot connect to voice channel, missing permissions",
-    "missingPermissionSpeak": "I cannot speak in this voice channel, make sure I have the proper permissions!",
-    "queueAdded": "✅ [**{title}**]({url}) has been added to the queue.",
-    "cantJoinChannel": "Could not join the channel: {error}",
-    "queueEnded": "Music queue ended.",
-    "queueError": "Error: {error}",
-    "startedPlaying": "▶ **Now Playing** ♪",
-    "duration":"Duration : ",
-    "skipSong": "Song skiped. ⏩",
-    "pauseSong": "The music has been paused. ⏸",
-    "resumeSong": "The music resumes. ▶",
-    "stopSong": "Stop the music. ⏹",
-    "leaveChannel": "Leaving voice channel...",
-    "songNotFound": "Audio Not Found",
-    "songAccessErr": "Video is age restricted, private or unavailable"
-  },
-  "playlist": {
-    "description": "Play a playlist from YouTube and other sources",
-    "usagesReply": "Usage: {prefix}playlist <Playlist URL | Playlist Name>",
-    "errorNotChannel": "You need to join a voice channel first.",
-    "errorNotInSameChannel": "You must be in the same channel as {user}",
-    "missingPermissionConnect": "Cannot connect to voice channel, missing permissions",
-    "missingPermissionSpeak": "I cannot speak in this voice channel, make sure I have the proper permissions!",
-    "errorNotFoundPlaylist": "Playlist not found :(",
-    "fetchingPlaylist": "⌛ Fetching the playlist...",
-    "startedPlaylist": "✅ The playlist [**{title}**]({url}) ({length} tracks) has been added to the queue.",
-    "cantJoinChannel": "Could not join the channel: {error}"
-  },
-  "pruning": {
-    "description": "Toggle pruning of bot messages",
-    "errorWritingFile": "There was an error writing to the file.",
-    "result": "Message pruning is {result}"
-  },
-  "queue": {
-    "description": "Show the music queue and now playing.",
-    "missingPermissionMessage": "Missing permission to manage messages or add reactions",
-    "errorNotQueue": "❌ **Nothing playing in this server**",
-    "currentPage": "Current Page - ",
-    "embedTitle": "Song Queue\n",
-    "embedCurrentSong": "**Current Song - [{title}]({url})**\n\n{info}"
-  },
-  "remove": {
-    "description": "Remove song from the queue",
-    "errorNotQueue": "There is no queue.",
-    "usageReply": "Usage: {prefix}remove <Queue Number>",
-    "result": "**{title}** has been removed from the queue."
-  },
-  "resume": {
-    "description": "Resume currently playing music",
-    "errorNotQueue": "There is nothing playing.",
-    "resultNotPlaying": "The music resumes. ▶",
-    "errorPlaying": "The queue is not paused."
-  },
-  "search": {
-    "description": "Choose songs to play.",
-    "usageReply": "Usage: {prefix}{name} <Video Name>",
-    "errorNotChannel": "You need to join a voice channel first!",
-    "menuNothing": "Nothing selected",
-    "resultEmbedTitle": "Choose the song to play.",
-    "finished": "Search finished."
-  },
-  "shuffle": {
-    "description": "Shuffle queue",
-    "errorNotQueue": "There is no queue.",
-    "result": "The queue was shuffled. 🔀"
-  },
-  "skip": {
-    "description": "Skip the currently playing song",
-    "errorNotQueue": "There is nothing playing that I could skip for you.",
-    "result": "Song skiped. ⏩"
-  },
-  "skipto": {
-    "description": "Skip to the selected queue number",
-    "usageReply": "Usage: {prefix}{name} <Queue Number>",
-    "errorNotQueue": "There is no queue.",
-    "errorNotValid": "The queue is only {length} songs long!",
-    "result": "{arg} skipped songs"
-  },
-  "stop": {
-    "description": "Stops the music",
-    "errorNotQueue": "There is nothing playing.",
-    "result": "Music stop. ⏹"
-  },
-  "uptime": {
-    "description": "Check the uptime",
-    "result": "Uptime: `{days} day(s),{hours} hours, {minutes} minutes, {seconds} seconds`"
-  },
-  "volume": {
-    "description": "Change volume of currently playing music",
-    "errorNotQueue": "There is nothing playing.",
-    "errorNotChannel": "You need to join a voice channel first!",
-    "currentVolume": "🔊 The current volume is: **{volume}%**",
-    "errorNotNumber": "Please use a number to set volume.",
-    "errorNotValid": "Please use a number between 0 - 100.",
-    "result": "Volume set to: **{arg}%**"
-  },
-  "common": {
-    "on": "**on**",
-    "off": "**off**",
-    "enabled": "**enabled**",
-    "disabled": "**disabled**",
-    "loading": "⏳ Loading...",
-    "errorNotChannel": "You need to join a voice channel first!",
-    "cooldownMessage": "please wait {time} more second(s) before reusing the `{name}` command.",
-    "errorCommand": "There was an error executing that command."
-  }
+	"pruning": {
+		"description": "Toggle pruning of bot messages",
+		"errorWritingFile": "There was an error writing to the file.",
+		"result": "Message pruning is {result}"
+	},
+	"queue": {
+		"description": "Show the music queue and now playing.",
+		"missingPermissionMessage": "Missing permission to manage messages or add reactions",
+		"errorNotQueue": "❌ **Nothing playing in this server**",
+		"currentPage": "Current Page - ",
+		"embedTitle": "Song Queue\n",
+		"embedCurrentSong": "**Current Song - [{title}]({url})**\n\n{info}"
+	},
+	"remove": {
+		"description": "Remove song from the queue",
+		"errorNotQueue": "There is no queue.",
+		"usageReply": "Usage: {prefix}remove <Queue Number>",
+		"result": "**{title}** has been removed from the queue."
+	},
+	"resume": {
+		"description": "Resume currently playing music",
+		"errorNotQueue": "There is nothing playing.",
+		"resultNotPlaying": "The music resumes. ▶",
+		"errorPlaying": "The queue is not paused."
+	},
+	"search": {
+		"description": "Choose songs to play.",
+		"usageReply": "Usage: {prefix}{name} <Video Name>",
+		"errorNotChannel": "You need to join a voice channel first!",
+		"menuNothing": "Nothing selected",
+		"resultEmbedTitle": "Choose the song to play.",
+		"finished": "Search finished."
+	},
+	"shuffle": {
+		"description": "Shuffle queue",
+		"errorNotQueue": "There is no queue.",
+		"result": "The queue was shuffled. 🔀"
+	},
+	"skip": {
+		"description": "Skip the currently playing song",
+		"errorNotQueue": "There is nothing playing that I could skip for you.",
+		"result": "Song skiped. ⏩"
+	},
+	"skipto": {
+		"description": "Skip to the selected queue number",
+		"usageReply": "Usage: {prefix}{name} <Queue Number>",
+		"errorNotQueue": "There is no queue.",
+		"errorNotValid": "The queue is only {length} songs long!",
+		"result": "{arg} skipped songs"
+	},
+  "previous": {
+		"description": "Allows you to go back in the playback queue.",
+    "result": "Successfully went back to the previous song. ⏪"
+	},
+	"stop": {
+		"description": "Stops the music",
+		"errorNotQueue": "There is nothing playing.",
+		"result": "Music stop. ⏹"
+	},
+	"uptime": {
+		"description": "Check the uptime",
+		"result": "Uptime: `{days} day(s),{hours} hours, {minutes} minutes, {seconds} seconds`"
+	},
+	"volume": {
+		"description": "Change volume of currently playing music",
+		"errorNotQueue": "There is nothing playing.",
+		"errorNotChannel": "You need to join a voice channel first!",
+		"currentVolume": "🔊 The current volume is: **{volume}%**",
+		"errorNotNumber": "Please use a number to set volume.",
+		"errorNotValid": "Please use a number between 0 - 100.",
+		"result": "Volume set to: **{arg}%**"
+	},
+	"common": {
+		"on": "**on**",
+		"off": "**off**",
+		"enabled": "**enabled**",
+		"disabled": "**disabled**",
+		"loading": "⏳ Loading...",
+		"errorNotChannel": "You need to join a voice channel first!",
+		"cooldownMessage": "please wait {time} more second(s) before reusing the `{name}` command.",
+		"errorCommand": "There was an error executing that command."
+	}
 }

@@ -13,14 +13,15 @@ export default {
 
     if (!canModifyQueue(message.member!)) return message.reply(i18n.__("common.errorNotChannel")).then(purning);
 
-    let songs = queue.songs;
+    let previousSongs = queue.songs.slice(0, queue.index);
+    let followingSongs = queue.songs.slice(queue.index);
 
-    for (let i = songs.length - 1; i > 1; i--) {
+    for (let i = followingSongs.length - 1; i > 1; i--) {
       let j = 1 + Math.floor(Math.random() * i);
-      [songs[i], songs[j]] = [songs[j], songs[i]];
+      [followingSongs[i], followingSongs[j]] = [followingSongs[j], followingSongs[i]];
     }
 
-    queue.songs = songs;
+    queue.songs = previousSongs.concat(followingSongs);
 
     queue.textChannel.send(i18n.__mf("shuffle.result")).then(purning);
   }

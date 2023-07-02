@@ -14,7 +14,7 @@ export default {
     const queue = bot.queues.get(message.guild!.id);
     if (!queue || !queue.songs.length) return message.reply(i18n.__("queue.errorNotQueue")).then(purning);
 
-    const embeds = generateQueueEmbed(message, queue.songs);
+    const embeds = generateQueueEmbed(message, queue.songs.slice(queue.index));
 
     let currentPage = 0;
     if (!isNaN(args[0]) && args[0] > 0 && args[0] <= embeds.length) {
