@@ -25,7 +25,7 @@ export default {
 
     if (!channel) return message.reply(i18n.__("playlist.errorNotChannel")).then(purning);
 
-    if (!channel.joinable) return message.reply(i18n.__("playlist.missingPermissionConnect")).then(purning);
+    if (channel.id != channel.guild.members.me!.voice.channelId && !channel.joinable) return message.reply(i18n.__("playlist.missingPermissionConnect")).then(purning);
 
     if (!channel.permissionsFor(bot.client.user!.id, true)?.has(PermissionsBitField.Flags.Speak)) {
       return message.reply(i18n.__("playlist.missingPermissionSpeak")).then(purning);

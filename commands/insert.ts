@@ -21,7 +21,7 @@ export default {
     const { channel } = message.member!.voice;
     if (!channel) return message.reply(i18n.__("play.errorNotChannel")).then(purning);
 
-    if (!channel.joinable) return message.reply(i18n.__("play.missingPermissionConnect")).then(purning);
+    if (channel.id != channel.guild.members.me!.voice.channelId && !channel.joinable) return message.reply(i18n.__("play.missingPermissionConnect")).then(purning);
 
     if (!channel.permissionsFor(bot.client.user!.id, true)?.has(PermissionsBitField.Flags.Speak))
       return message.reply(i18n.__("play.missingPermissionSpeak")).then(purning);
