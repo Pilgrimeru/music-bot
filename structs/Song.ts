@@ -7,6 +7,7 @@ import { DeezerTrack, SoundCloudTrack, deezer, stream as getStream, so_validate,
 import youtube from "youtube-sr";
 import { formatTime } from "../utils/tools";
 import { i18n } from "../utils/i18n";
+import { config } from "../utils/config";
 const { getPreview } = require('spotify-url-info')(fetch);
 
 
@@ -148,12 +149,12 @@ export class Song {
       let type;
 
       if (this.url.startsWith("https") && (yt_validate(this.url) === "video" || await so_validate(this.url) == "track")) {
-
+        console.log(config.AUDIO_QUALITY);
         const response = await getStream(this.url, {
           discordPlayerCompatibility: true,
           htmldata: false,
           precache: 30,
-          quality: 0, //Quality number. [ 0 = Lowest, 1 = Medium, 2 = Highest ]
+          quality: config.AUDIO_QUALITY,
         });
         stream = response.stream;
         type = response.type;
