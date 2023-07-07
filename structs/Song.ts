@@ -149,7 +149,6 @@ export class Song {
       let type;
 
       if (this.url.startsWith("https") && (yt_validate(this.url) === "video" || await so_validate(this.url) == "track")) {
-        console.log(config.AUDIO_QUALITY);
         const response = await getStream(this.url, {
           discordPlayerCompatibility: true,
           htmldata: false,
