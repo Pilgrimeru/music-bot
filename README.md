@@ -1,3 +1,5 @@
+# Project replaced by [a new version](https://github.com/Pilgrimeru/Pilzic) entirely coded by myself using the knowledge obtained on this fork.
+
 # 🎧 Music Bot ([Evobot](https://github.com/eritislami/evobot) fork)
 > My vision of a simple and fast discord music bot.
 
